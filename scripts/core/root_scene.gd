@@ -1,21 +1,23 @@
 extends Node2D
 
-var mdi_window_scene = preload("res://mdi_window.tscn")
-var terminal_scene = preload("res://terminal_ui.tscn")
-var networkmap_scene = preload("res://NetworkMapUI.tscn")
-var sidebar_scene = preload("res://Sidebar.tscn")
-var mission_select_scene = preload("res://MissionSelectUI.tscn")
+# 💡 修正: シーンのpreloadは全て 'const' で大文字表記に統一します
+const MDI_WINDOW_SCENE = preload("res://scenes/windows/mdi_window.tscn")
+const TERMINAL_SCENE = preload("res://scenes/windows/terminal_ui.tscn")
+const NETWORKMAP_SCENE = preload("res://scenes/windows/NetworkMapUI.tscn")
+const SIDEBAR_SCENE = preload("res://scenes/ui/Sidebar.tscn")
+const MISSION_SELECT_SCENE = preload("res://scenes/ui/MissionSelectUI.tscn")
+const MAIN_MENU_SCENE = preload("res://scenes/ui/MainMenu.tscn")
 
 # 開いているウィンドウを管理する辞書（重複防止用）
 var open_windows: Dictionary = {}
 
-# MDIウィンドウを配置するノードへの参照
-@onready var mdi_area = $UI_Layer/MainUIContainer/MainHBox/MDI_Area 
 # アニメーションを制御するノード (SidebarContainerの子として追加するのがベスト)
-@onready var animator = $UI_Layer/MainUIContainer/AnimationPlayer # RootSceneにAnimationPlayerノードを追加
+
+@onready var ui_holder: Control = $UI_Layer/UI_Holder
 
 @onready var sidebar_toggle = $UI_Layer/SidebarToggle
 var sidebar_instance: Control = null # <--- Sidebarインスタンスを保持する変数
+var current_ui_instance: Control = null
 
 # サイドバーの幅とアニメーション時間をここで定数として定義し、sidebar.gdと同期させる
 const SIDEBAR_WIDTH = Global.SIDEBAR_WIDTH
@@ -26,50 +28,93 @@ const COLLAPSED_WIDTH = 20.0
 const EXPANDED_WIDTH = 150.0 # 展開後の幅
 
 func _ready():
+	# 1.Sidebarインスタンスを作成し、UI_Layerの子として追加
+	var sidebar_ui = SIDEBAR_SCENE.instantiate() # 💡 修正: SIDEBAR_SCENEを使用
+	$UI_Layer.add_child(sidebar_ui)
+	sidebar_instance = sidebar_ui
+	sidebar_instance.visible = false # 初期状態は非表示とする
 
-	# 起動時にターミナルウィンドウを開く
-	#open_window("Terminal", terminal_scene)
+	# 2.アプリ起動ときはMission Select/Main Menuのいずれかから開始
+	#navigate_to_mission_select()
+	start_main_menu_mode()
 
-	# 💡 追記: 起動時にマップウィンドウを開く (MDIウィンドウとして)
-	# ターミナルと位置をずらして、ウィンドウが重ならないようにする
-	#open_window("Network Map", networkmap_scene, Vector2(600, 100))
+# ----------
+# ヘルパーメソッド（UI切り替えの核とするロジック）
+# ----------
 
-	# 💡 追記: 起動時にミッション選択画面を開く
-	open_mission_select_ui()
-
-	### サイドバーを表示する
-	#var sidebar_ui = sidebar_scene.instantiate()
-	#$UI_Layer.add_child(sidebar_ui) 
-	#sidebar_instance = sidebar_ui
-	
-	#set_mission_mode("initial")
-
-# ミッション選択UIを開く関数
-func open_mission_select_ui():
-	var select_ui = mission_select_scene.instantiate()
-	$UI_Layer.add_child(select_ui) 
-	# select_ui.set_anchors_preset(Control.PRESET_FULL_RECT) # MissionSelectUI.gdで設定済み
-
-# ミッション開始関数
-func start_mission(mission_id: String):
-	# 1. MissionManagerからミッションデータを取得
-	var mission_data = MissionManager.get_mission_data(mission_id)
-	
-	if mission_data.is_empty():
-		print("Error: Failed to load data for mission: ", mission_id)
-		return
-
-	# 2. 既存の開いているウィンドウを全て閉じる (オプション)
+# 💡 追加: 既存のUIとウィンドウを全てクリーンアップする関数
+func _clear_ui_and_windows():
+	# 古い全画面UIを削除
+	if is_instance_valid(current_ui_instance):
+		current_ui_instance.queue_free()
+		current_ui_instance = null
+		
+	# 開いているMDIウィンドウを全て削除
 	for id in open_windows.keys():
 		if is_instance_valid(open_windows[id]):
 			open_windows[id].queue_free()
 	open_windows.clear()
 	
-	# 3. 必要な初期ウィンドウを開く (例: Terminalは必須)
-	open_window("Terminal", terminal_scene)
+func _set_current_ui(new_ui: Control):
+	# 1.古いUIを削除
+	if is_instance_valid(current_ui_instance):
+		current_ui_instance.queue_free()
+		
+	# 2.新しいUIをUI_Holderに追加
+	ui_holder.add_child(new_ui)
+	current_ui_instance = new_ui
+	# Full Rectプリセットで親(UI_Holder)全体に広げる
+	new_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
 	
-	# 4. サイドバーの機能やネットワークマップの初期ロード処理（今後の実装）
-	# set_mission_mode(mission_id)
+# ミッション選択画面へ移行(MainMenuUIから呼び出される）
+func navigate_to_mission_select():
+	# 💡 修正: _clear_ui_and_windowsを呼び出し、クリーンアップを任せる
+	_clear_ui_and_windows()
+	
+	# UI_HolderにMissionSelectUIをロード
+	var mission_select_instance = MISSION_SELECT_SCENE.instantiate() # 💡 修正: 定数 MISSION_SELECT_SCENEを使用
+	_set_current_ui(mission_select_instance) # 💡 修正: タイポ mission_select_instalce を修正
+	
+	sidebar_toggle.visible = false
+	if is_instance_valid(sidebar_instance):
+		sidebar_instance.visible = false # Sidebarも非表示とする
+
+# 💡 メインメニュー画面へ移行 (アプリ起動時や、MissionSelectUIの「戻る」ボタンから呼び出される)
+func start_main_menu_mode():
+	# UIとMDIウィンドウを全てクリア
+	_clear_ui_and_windows()
+	
+	# UI_HolderにMainMenuUIをロード
+	var main_menu_instance = MAIN_MENU_SCENE.instantiate()
+	_set_current_ui(main_menu_instance)
+	
+	# Sidebarとトグルボタンは非表示
+	sidebar_toggle.visible = false
+	if is_instance_valid(sidebar_instance):
+		sidebar_instance.visible = false
+
+# ミッション開始関数
+func start_mission(mission_id: String):
+	# 💡 修正: 画面遷移として、まず現在のUI（MissionSelectUI）とウィンドウをクリア
+	_clear_ui_and_windows()
+	
+	# 1. MissionManagerからミッションデータを取得
+	# MissionManager.get_mission_data() はMissionManager.gdに実装されているものと仮定
+	var mission_data = MissionManager.get_mission_data(mission_id) 
+	
+	if mission_data.is_empty():
+		print("Error: Failed to load data for mission: ", mission_id)
+		return
+
+	# 2. MDIウィンドウは _clear_ui_and_windows() で既に閉じられているため不要 (open_windows.clear() も不要)
+	
+	# 3. 必要な初期ウィンドウを開く (例: Terminalは必須)
+	open_window("Terminal", TERMINAL_SCENE) # 💡 修正: TERMINAL_SCENEを使用
+	
+	# 4. サイドバーとトグルボタンを表示する
+	sidebar_toggle.visible = true # トグルボタンを表示
+	if is_instance_valid(sidebar_instance):
+		sidebar_instance.visible = true # サイドバーを有効化
 	
 	# 5. UIにミッションタイトルや目標を表示する処理（今後の実装）
 	print("Mission Started: ", mission_data.get("title"))
@@ -81,11 +126,13 @@ func open_window(window_id: String, content_scene: PackedScene, initial_position
 		open_windows[window_id].grab_focus()
 		return
 	
-	var mdi_window = mdi_window_scene.instantiate()
+	var mdi_window = MDI_WINDOW_SCENE.instantiate() # 💡 修正: MDI_WINDOW_SCENEを使用
 	#self.add_child(mdi_window) # RootSceneの子として追加
 	# UI_Layerの子供として追加する
 	$UI_Layer.add_child(mdi_window)
 	
+	# ... (以降の open_window 関数は変更なし)
+
 	mdi_window.position = initial_position
 	
 	# 初期化
@@ -115,14 +162,13 @@ func _on_window_closed(window_id):
 	# ウィンドウが閉じられたら管理リストから削除
 	open_windows.erase(window_id)
 
-# 
-
+# 💡 サイドバーの開閉処理は大きな変更なし
 func _on_sidebar_toggle_pressed() -> void:
 	if not is_instance_valid(sidebar_instance):
 		return
 
 	# 1. sidebar_instanceの開閉アニメーションを開始し、新しい状態（is_open_now）を取得
-	var is_open_now = sidebar_instance.toggle_sidebar() 
+	var is_open_now = sidebar_instance.toggle_sidebar()
 	
 	# 2. トグルボタンをアニメーションさせるためのTweenを作成
 	var tween = create_tween()

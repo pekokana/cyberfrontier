@@ -4,8 +4,6 @@ extends Control
 @onready var options: Panel = $Options
 @onready var chkbnt_screen_size: CheckButton = $Options/Label/chkbntScreenSize
 
-
-
 func _ready():
 	main_buttons.visible = true
 	options.visible = false
@@ -23,7 +21,17 @@ func _on_btn_options_pressed() -> void:
 
 
 func _on_btn_start_pressed() -> void:
-	print("pressed btnStart")
+	print("pressed btnStart: Transitioning to MissionSelectUI")
+		
+	# RootSceneのインスタンスを取得（SceneTreeのルートの子ノードであると仮定）
+	
+	if is_instance_valid(SceneManager) and SceneManager.has_method("navigate_to_mission_select"):
+		# 💡 画面遷移を実行
+		SceneManager.navigate_to_mission_select()
+	else:
+		# エラーメッセージを分かりやすく
+		print("ERROR: Could not find RootScene or navigate_to_mission_select method.")
+		print("Is RootScene the main scene?")
 
 
 func _on_btn_options_back_pressed() -> void:
