@@ -1,0 +1,22 @@
+{
+  "mission_id": "NF-E-001",
+  "version": "1.0",
+  "title": "FTP パケット解析による認証情報特定",
+  "category": "Network / Forensics",
+  "difficulty": "Easy",
+  "description": "キャプチャファイルからFTP通信を解析し、平文で流出した認証情報を特定せよ。",
+  "timing": {
+	"has_time_limit": false
+  },
+  "setup": {
+	"target_server": "192.168.1.10",
+	"required_tool": ["Terminal", "PacketCapture"],
+	"initial_files": [
+	  { "path": "/home/user/evidence.pcap", "type": "pcap" }
+	]
+  },
+  "clear_condition": {
+	"type": "flag_submission",
+	"flag": "cf_flag{FTP_P4ssw0rd}"
+  }
+}

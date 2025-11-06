@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="CyberFrontier"
-run/main_scene="uid://bno0or3q58up0"
+run/main_scene="uid://pjur0ij1scib"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 boot_splash/bg_color=Color(0.89059, 0.89059, 0.89059, 1)
 config/icon="uid://bfx1h58wi3v0w"
@@ -19,9 +19,9 @@ config/icon="uid://bfx1h58wi3v0w"
 [autoload]
 
 Global="*res://Global.gd"
+MissionManager="*res://MissionManager.gd"
 
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
-environment/defaults/default_clear_color=Color(0.977937, 0.977937, 0.977937, 1)

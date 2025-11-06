@@ -1,0 +1,21 @@
+{
+  "mission_id": "IR-H-003",
+  "version": "1.0",
+  "title": "初動対応：不審通信のファイアウォールによる封じ込め",
+  "category": "Defense / Incident Response",
+  "difficulty": "Hard",
+  "description": "SIEMアラートを受信。攻撃元のIPを特定し、指定された通信プロトコルを即座にファイアウォール機能で遮断せよ。",
+  "timing": {
+	"has_time_limit": true,
+	"limit_seconds": 300,
+	"time_up_action": "AUTO_FAIL"
+  },
+  "setup": {
+	"target_server": "192.168.1.200",
+	"required_tool": ["Terminal", "FirewallSetting", "PortScan"]
+  },
+  "clear_condition": {
+	"type": "config_change",
+	"flag": "Firewall Rule Applied: 10.0.0.1 DROP TCP"
+  }
+}

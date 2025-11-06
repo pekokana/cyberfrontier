@@ -6,13 +6,10 @@
 [node name="RootScene" type="Node2D"]
 script = ExtResource("1_itajj")
 
-[node name="World" type="Node2D" parent="."]
-
-[node name="Camera2D" type="Camera2D" parent="."]
-
 [node name="UI_Layer" type="CanvasLayer" parent="."]
 
 [node name="SidebarToggle" type="TextureButton" parent="UI_Layer"]
+visible = false
 offset_right = 40.0
 offset_bottom = 40.0
 texture_normal = ExtResource("2_c77vg")

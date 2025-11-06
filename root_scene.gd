@@ -4,6 +4,7 @@ var mdi_window_scene = preload("res://mdi_window.tscn")
 var terminal_scene = preload("res://terminal_ui.tscn")
 var networkmap_scene = preload("res://NetworkMapUI.tscn")
 var sidebar_scene = preload("res://Sidebar.tscn")
+var mission_select_scene = preload("res://MissionSelectUI.tscn")
 
 # 開いているウィンドウを管理する辞書（重複防止用）
 var open_windows: Dictionary = {}
@@ -24,44 +25,54 @@ var sidebar_expanded: bool = false
 const COLLAPSED_WIDTH = 20.0
 const EXPANDED_WIDTH = 150.0 # 展開後の幅
 
-# 🔴 追加: ミッションごとの機能定義
-var MISSION_FUNCTIONS = {
-	"initial": {
-		"terminal": {
-			"scene": terminal_scene, 
-			"icon_path": "res://icons/terminal.svg", # 適切なパスに変更
-			"title": "Terminal"
-		},
-		"map": {
-			"scene": networkmap_scene, 
-			"icon_path": "res://icons/map.svg", # 適切なパスに変更
-			"title": "Network Map"
-		}
-	},
-	"mission_02": {
-		"map": {
-			"scene": networkmap_scene, 
-			"icon_path": "res://icons/map.svg",
-			"title": "Network Map"
-		}
-	}
-}
-
 func _ready():
 
 	# 起動時にターミナルウィンドウを開く
-	open_window("Terminal", terminal_scene)
+	#open_window("Terminal", terminal_scene)
 
 	# 💡 追記: 起動時にマップウィンドウを開く (MDIウィンドウとして)
 	# ターミナルと位置をずらして、ウィンドウが重ならないようにする
 	#open_window("Network Map", networkmap_scene, Vector2(600, 100))
 
-	## サイドバーを表示する
-	var sidebar_ui = sidebar_scene.instantiate()
-	$UI_Layer.add_child(sidebar_ui) 
-	sidebar_instance = sidebar_ui
+	# 💡 追記: 起動時にミッション選択画面を開く
+	open_mission_select_ui()
+
+	### サイドバーを表示する
+	#var sidebar_ui = sidebar_scene.instantiate()
+	#$UI_Layer.add_child(sidebar_ui) 
+	#sidebar_instance = sidebar_ui
 	
 	#set_mission_mode("initial")
+
+# ミッション選択UIを開く関数
+func open_mission_select_ui():
+	var select_ui = mission_select_scene.instantiate()
+	$UI_Layer.add_child(select_ui) 
+	# select_ui.set_anchors_preset(Control.PRESET_FULL_RECT) # MissionSelectUI.gdで設定済み
+
+# ミッション開始関数
+func start_mission(mission_id: String):
+	# 1. MissionManagerからミッションデータを取得
+	var mission_data = MissionManager.get_mission_data(mission_id)
+	
+	if mission_data.is_empty():
+		print("Error: Failed to load data for mission: ", mission_id)
+		return
+
+	# 2. 既存の開いているウィンドウを全て閉じる (オプション)
+	for id in open_windows.keys():
+		if is_instance_valid(open_windows[id]):
+			open_windows[id].queue_free()
+	open_windows.clear()
+	
+	# 3. 必要な初期ウィンドウを開く (例: Terminalは必須)
+	open_window("Terminal", terminal_scene)
+	
+	# 4. サイドバーの機能やネットワークマップの初期ロード処理（今後の実装）
+	# set_mission_mode(mission_id)
+	
+	# 5. UIにミッションタイトルや目標を表示する処理（今後の実装）
+	print("Mission Started: ", mission_data.get("title"))
 
 # 💡 ウィンドウを開く汎用関数
 func open_window(window_id: String, content_scene: PackedScene, initial_position: Vector2 = Vector2(50, 50)):
@@ -105,13 +116,6 @@ func _on_window_closed(window_id):
 	open_windows.erase(window_id)
 
 # 
-func set_mission_mode(mission_key: String):
-	if not MISSION_FUNCTIONS.has(mission_key):
-		print("Error: Unknown mission key: ", mission_key)
-		return
-		
-		
-	var functions_to_show = MISSION_FUNCTIONS[mission_key]
 
 func _on_sidebar_toggle_pressed() -> void:
 	if not is_instance_valid(sidebar_instance):
