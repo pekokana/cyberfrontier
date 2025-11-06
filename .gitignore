@@ -14,3 +14,16 @@ export_credentials.cfg
 .mono/
 data_*/
 mono_crash.*.json
+
+# 編集用アセットフォルダなど
+.assets_source/
+
+# 特定の拡張子
+.import
+.tmp
+.uid
+export_presets.cfg
+
+# ビルド出力など
+.dst/
+
