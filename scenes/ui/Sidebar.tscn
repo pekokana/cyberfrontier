@@ -1,9 +1,9 @@
 [gd_scene load_steps=5 format=3 uid="uid://cmbcspv0hds85"]
 
-[ext_resource type="Script" uid="uid://0wflr8n8usng" path="res://sidebar.gd" id="1_uqdgd"]
-[ext_resource type="Texture2D" uid="uid://bpokall2ocrug" path="res://assets/terminal64.png" id="2_tb3yr"]
-[ext_resource type="Texture2D" uid="uid://d35s5efiwqqqw" path="res://assets/nmap64.png" id="3_kiffa"]
-[ext_resource type="Texture2D" uid="uid://cxkutj0q5r6rf" path="res://assets/apiclient64.png" id="4_kcsgo"]
+[ext_resource type="Script" uid="uid://0wflr8n8usng" path="res://scripts/ui/sidebar.gd" id="1_uqdgd"]
+[ext_resource type="Texture2D" uid="uid://bpokall2ocrug" path="res://assets/icons/terminal64.png" id="2_tb3yr"]
+[ext_resource type="Texture2D" uid="uid://d35s5efiwqqqw" path="res://assets/icons/nmap64.png" id="3_kiffa"]
+[ext_resource type="Texture2D" uid="uid://cxkutj0q5r6rf" path="res://assets/icons/apiclient64.png" id="4_kcsgo"]
 
 [node name="SideBar" type="Control"]
 layout_direction = 1
