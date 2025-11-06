@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://ucsrei11epj1"]
 
-[ext_resource type="Script" uid="uid://c0w6mbrfcxxbn" path="res://terminal_ui.gd" id="1_cv4nl"]
+[ext_resource type="Script" uid="uid://c0w6mbrfcxxbn" path="res://scripts/windows/terminal_ui.gd" id="1_cv4nl"]
 
 [node name="TerminalUI" type="Control"]
 layout_mode = 3

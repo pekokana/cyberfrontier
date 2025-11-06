@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cwgav3ui7hell"]
 
-[ext_resource type="Script" uid="uid://htxea58llhwj" path="res://NetworkManager.gd" id="1_pid6s"]
+[ext_resource type="Script" uid="uid://htxea58llhwj" path="res://scripts/managers/NetworkManager.gd" id="1_pid6s"]
 
 [node name="NetworkMapUI" type="Control"]
 layout_mode = 3

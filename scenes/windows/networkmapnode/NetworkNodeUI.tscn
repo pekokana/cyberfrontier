@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://n12oodbkw823"]
 
-[ext_resource type="Script" uid="uid://cr7sfuj46r010" path="res://NetworkNodeUI.gd" id="1_ghqgs"]
+[ext_resource type="Script" uid="uid://cr7sfuj46r010" path="res://scripts/windows/NetworkNodeUI.gd" id="1_ghqgs"]
 
 [node name="NetworkNodeUI" type="Control"]
 layout_mode = 3
