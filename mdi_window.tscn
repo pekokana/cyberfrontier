@@ -1,0 +1,31 @@
+[gd_scene load_steps=3 format=3 uid="uid://b8lqtmfn30cjh"]
+
+[ext_resource type="Script" uid="uid://bdx2aiw1vv75n" path="res://mdi_window.gd" id="1_3q3jp"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3q3jp"]
+bg_color = Color(0.1, 0.1, 0.1, 1)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 10
+shadow_offset = Vector2(4, 4)
+
+[node name="MDIWindow" type="Window"]
+position = Vector2i(0, 36)
+theme_override_styles/embedded_border = SubResource("StyleBoxFlat_3q3jp")
+script = ExtResource("1_3q3jp")
+
+[node name="ContentContainer" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

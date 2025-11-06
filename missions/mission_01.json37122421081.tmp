@@ -1,0 +1,29 @@
+{
+	"mission_id": "M001",
+	"title": "Initial Reconnaissance",
+	"nodes": [
+		{
+			"ip": "192.168.56.1",
+			"name": "Router/FW",
+			"type": "FIREWALL",
+			"pos_x": 100,
+			"pos_y": 100,
+			"vulnerability_id": 0
+		},
+		{
+			"ip": "192.168.56.10",
+			"name": "Web Server Alpha",
+			"type": "WEB",
+			"pos_x": 400,
+			"pos_y": 250,
+			"vulnerability_id": 101,
+			"initial_status": "VULNERABLE"
+		}
+	],
+	"links": [
+		{
+			"source": "192.168.56.1",
+			"target": "192.168.56.10"
+		}
+	]
+}

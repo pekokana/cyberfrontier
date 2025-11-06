@@ -1,0 +1,53 @@
+[gd_scene load_steps=2 format=3 uid="uid://ucsrei11epj1"]
+
+[ext_resource type="Script" uid="uid://c0w6mbrfcxxbn" path="res://terminal_ui.gd" id="1_cv4nl"]
+
+[node name="TerminalUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_cv4nl")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 15
+mouse_filter = 2
+
+[node name="OutputBox" type="TextEdit" parent="VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+focus_mode = 0
+mouse_filter = 2
+theme_override_colors/background_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0, 1, 0, 1)
+theme_override_font_sizes/font_size = 12
+editable = false
+wrap_mode = 1
+scroll_smooth = true
+scroll_past_end_of_file = true
+
+[node name="InputLine" type="LineEdit" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+focus_next = NodePath(".")
+theme_override_font_sizes/font_size = 12
+placeholder_text = "Input Command..."
+context_menu_enabled = false
+emoji_menu_enabled = false
+middle_mouse_paste_enabled = false

@@ -1,0 +1,25 @@
+[gd_scene load_steps=2 format=3 uid="uid://n12oodbkw823"]
+
+[ext_resource type="Script" uid="uid://cr7sfuj46r010" path="res://NetworkNodeUI.gd" id="1_ghqgs"]
+
+[node name="NetworkNodeUI" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_ghqgs")
+
+[node name="Icon" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="StatusColor" type="ColorRect" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="IPLabel" type="Label" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
