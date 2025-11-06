@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3 uid="uid://pjur0ij1scib"]
 
-[ext_resource type="Script" uid="uid://ceajb2nldd4fm" path="res://scenes/ui/MainMenu.gd" id="1_vjtqc"]
+[ext_resource type="Script" uid="uid://ceajb2nldd4fm" path="res://scripts/ui/MainMenu.gd" id="1_vjtqc"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_eiy7p"]
 
@@ -35,6 +35,7 @@ shadow_size = 5
 shadow_offset = Vector2(0, 3.31)
 
 [sub_resource type="SystemFont" id="SystemFont_iwfq2"]
+subpixel_positioning = 0
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -147,6 +148,7 @@ text = "Options"
 horizontal_alignment = 1
 
 [node name="btnOptionsBack" type="Button" parent="Options/Label"]
+layout_mode = 0
 offset_left = 113.0
 offset_top = 170.0
 offset_right = 313.0

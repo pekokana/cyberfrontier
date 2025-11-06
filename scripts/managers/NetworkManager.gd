@@ -3,7 +3,7 @@ extends Node2D
 
 # 外部シーンとクラスの参照
 # NetworkNode.gd は class_name NetworkNode で定義済みのため、プリロード不要
-const NODE_UI_SCENE = preload("res://NetworkNodeUI.tscn")
+const NODE_UI_SCENE = preload("res://scenes/windows/networkmapnode/NetworkNodeUI.tscn")
 
 # ネットワーク内の全ノードデータを保持 (IPアドレスをキーとする)
 var current_nodes: Dictionary = {} 

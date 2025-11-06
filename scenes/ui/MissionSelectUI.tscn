@@ -1,6 +1,38 @@
-[gd_scene load_steps=2 format=3 uid="uid://dgewi7lp8l5de"]
+[gd_scene load_steps=6 format=3 uid="uid://dgewi7lp8l5de"]
 
 [ext_resource type="Script" uid="uid://bk35mw7wyc4yx" path="res://scripts/windows/MissionSelectUI.gd" id="1_u0l8q"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_7y5uk"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4vr03"]
+bg_color = Color(0.501407, 0.501406, 0.501406, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.203922)
+shadow_size = 5
+shadow_offset = Vector2(0, 3.31)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_npyb8"]
+bg_color = Color(0.501961, 0.501961, 0.501961, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.203922)
+shadow_size = 5
+shadow_offset = Vector2(0, 3.31)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_j75qj"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.203922)
+shadow_size = 5
+shadow_offset = Vector2(0, 3.31)
 
 [node name="MissionSelectUI" type="Control"]
 layout_mode = 3
@@ -16,7 +48,7 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = -552.0
+offset_right = -716.0
 offset_bottom = 52.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -36,3 +68,22 @@ size_flags_vertical = 3
 [node name="MissionListContainer" type="VBoxContainer" parent="PanelContainer/VBoxContainer/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="btnBackMainMenu" type="Button" parent="."]
+offset_left = 821.0
+offset_top = 473.0
+offset_right = 977.0
+offset_bottom = 515.0
+size_flags_vertical = 10
+theme_override_colors/icon_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = SubResource("StyleBoxEmpty_7y5uk")
+theme_override_styles/hover = SubResource("StyleBoxFlat_4vr03")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_npyb8")
+theme_override_styles/normal = SubResource("StyleBoxFlat_j75qj")
+text = "Back MeinMenu"
+
+[connection signal="pressed" from="btnBackMainMenu" to="." method="_on_btn_back_main_menu_pressed"]

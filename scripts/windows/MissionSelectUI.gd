@@ -51,3 +51,15 @@ func _on_mission_selected(mission_id: String):
 		root_scene.start_mission(mission_id)
 		# 選択UIを閉じる
 		queue_free()
+
+
+func _on_btn_back_main_menu_pressed() -> void:
+	print("Back button pressed: Transitioning to MainMenuUI")
+	
+	var root_scene = get_tree().get_root().get_child(0)
+	
+	if is_instance_valid(root_scene) and root_scene.has_method("start_main_menu_mode"):
+		# 💡 RootSceneの遷移関数を呼び出す
+		root_scene.start_main_menu_mode()
+	else:
+		print("ERROR: Could not find RootScene or start_main_menu_mode method.")

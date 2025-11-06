@@ -13,12 +13,14 @@
 <!-- end list -->
 
 ```text
-root : Node : (root_scene.gd をアタッチ)
+root : Node2D : (root_scene.gd をアタッチ)
+>> World : Node2D : (削除推奨ノード)
+>> Camera2D : Camera2D : (削除推奨ノード)
 > UI_Layer : CanvasLayer : 
->> SidebarToggle : TextureButton : (サイドバー開閉ボタン)
->> Sidebar : Control : (root_scene.gd がインスタンス化し、visibleを制御)
->> CurrentUIInstance : Control : (Placeholder: MainMenuUI/MissionSelectUI のいずれかが排他的にここにロードされる)
->> MDIWindow_Instance : Window : (Placeholder: Terminal/NetworkMapなどがゲームモード中に動的に生成される)
+>> UI_Holder : Control :  
+>>> (ここに MainMenuUI や MissionSelectUI がロードされる)
+>> SidebarToggle : TextureButton : 
+>> (SidebarノードはGDScriptでインスタンス化してUI_Layerの子として追加される)
 ```
 
 -----
