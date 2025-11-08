@@ -84,7 +84,10 @@ func load_all_missions():
 		
 # IDからミッションデータを取得
 func get_mission_data(mission_id: String) -> Dictionary:
-	return loaded_missions.get(mission_id, {})
+	if loaded_missions.has(mission_id):
+		return loaded_missions[mission_id]
+	return {} # 見つからない場合は空の辞書を返す
+
 
 # 単一のJSONファイルを読み込むヘルパー関数
 func load_mission_json(path: String) -> Dictionary:

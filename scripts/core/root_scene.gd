@@ -1,5 +1,7 @@
 extends Node2D
 
+@onready var mission_manager = get_node("/root/MissionManager")
+
 # 💡 修正: シーンのpreloadは全て 'const' で大文字表記に統一します
 const MDI_WINDOW_SCENE = preload("res://scenes/windows/mdi_window.tscn")
 const TERMINAL_SCENE = preload("res://scenes/windows/terminal_ui.tscn")
@@ -7,6 +9,7 @@ const NETWORKMAP_SCENE = preload("res://scenes/windows/NetworkMapUI.tscn")
 const SIDEBAR_SCENE = preload("res://scenes/ui/Sidebar.tscn")
 const MISSION_SELECT_SCENE = preload("res://scenes/ui/MissionSelectUI.tscn")
 const MAIN_MENU_SCENE = preload("res://scenes/ui/MainMenu.tscn")
+const MISSION_EXECUTION_SCENE = preload("res://scenes/ui/MissionExecutionUI.tscn")
 
 # 開いているウィンドウを管理する辞書（重複防止用）
 var open_windows: Dictionary = {}
@@ -20,6 +23,8 @@ var open_windows: Dictionary = {}
 
 var sidebar_instance: Control = null # <--- Sidebarインスタンスを保持する変数
 var current_ui_instance: Control = null
+
+var current_ui_scene: Control = null
 
 # サイドバーの幅とアニメーション時間をここで定数として定義し、sidebar.gdと同期させる
 const SIDEBAR_WIDTH = Global.SIDEBAR_WIDTH
@@ -123,30 +128,50 @@ func start_main_menu_mode():
 
 # ミッション開始関数
 func start_mission(mission_id: String):
-	# 💡 修正: 画面遷移として、まず現在のUI（MissionSelectUI）とウィンドウをクリア
-	_clear_ui_and_windows()
-	
-	# 1. MissionManagerからミッションデータを取得
-	# MissionManager.get_mission_data() はMissionManager.gdに実装されているものと仮定
-	var mission_data = MissionManager.get_mission_data(mission_id) 
+	# 1. MissionManagerが有効か確認
+	if not is_instance_valid(mission_manager):
+		printerr("FATAL ERROR: MissionManager is not valid or not in the scene tree.")
+		return
+		
+	# 2. MissionManagerからミッションデータを取得
+	# 💡 MissionManager.gdに追加した get_mission_data 関数を使用
+	if not mission_manager.has_method("get_mission_data"):
+		printerr("ERROR: MissionManager is missing 'get_mission_data' method. Transition failed.")
+		return
+		
+	var mission_data = mission_manager.get_mission_data(mission_id)
 	
 	if mission_data.is_empty():
-		print("Error: Failed to load data for mission: ", mission_id)
+		printerr("Error: Mission data not found for ID:", mission_id)
+		return
+	
+	# 3. 現在のUIを解放
+	if is_instance_valid(current_ui_scene):
+		current_ui_scene.queue_free()
+
+	# 4. MissionExecutionUIシーンをインスタンス化
+	if MISSION_EXECUTION_SCENE == null:
+		printerr("ERROR: MISSION_EXECUTION_SCENE is null. Check preload path.")
 		return
 
-	# 2. MDIウィンドウは _clear_ui_and_windows() で既に閉じられているため不要 (open_windows.clear() も不要)
+	# UIとMDIウィンドウを全てクリア
+	_clear_ui_and_windows()
 	
-	# 3. 必要な初期ウィンドウを開く (例: Terminalは必須)
-	open_window("Terminal", TERMINAL_SCENE) # 💡 修正: TERMINAL_SCENEを使用
+	# UI_HolderにMainMenuUIをロード
+	#var main_menu_instance = MAIN_MENU_SCENE.instantiate()
+	var mission_ui = MISSION_EXECUTION_SCENE.instantiate()
+	_set_current_ui(mission_ui)
 	
-	# 4. サイドバーとトグルボタンを表示する
-	sidebar_toggle.visible = true # トグルボタンを表示
-	if is_instance_valid(sidebar_instance):
-		sidebar_instance.visible = true # サイドバーを有効化
-	btn_back_mission_select.visible = true
-		
-	# 5. UIにミッションタイトルや目標を表示する処理（今後の実装）
-	print("Mission Started: ", mission_data.get("title"))
+	## 5. シーンツリーに追加し、current_ui_sceneを更新
+	#add_child(mission_ui)
+	#current_ui_scene = mission_ui
+	
+	# 6. MissionExecutionUIをミッションデータで初期化
+	if mission_ui.has_method("initialize_mission"):
+		mission_ui.initialize_mission(mission_id, mission_data)
+	else:
+		printerr("Error: MissionExecutionUI is missing initialize_mission method.")
+
 
 # 💡 ウィンドウを開く汎用関数
 func open_window(window_id: String, content_scene: PackedScene, initial_position: Vector2 = Vector2(50, 50)):
@@ -222,3 +247,29 @@ func _on_btn_back_mission_select_pressed() -> void:
 	print("Back button pressed: Transitioning to MissionSelectUI")
 	
 	navigate_to_mission_select()
+
+# -------------------------------------------------------------
+# 💡 実行画面から戻るための関数 (ExitButton用)
+# -------------------------------------------------------------
+func start_mission_select_mode():
+	# 1. 現在のUI (MissionExecutionUI) を解放
+	if is_instance_valid(current_ui_scene):
+		print("DEBUG: [RootScene] Attempting to free old UI:", current_ui_scene.name)
+		# 💡 current_ui_sceneを解放
+		current_ui_scene.queue_free() 
+		# 💡 解放後、参照をクリア
+		current_ui_scene = null
+	else:
+		print("DEBUG: [RootScene] No current_ui_scene to free.")
+		
+	# 2. MissionSelectUIシーンをインスタンス化し、表示
+	if MISSION_SELECT_SCENE == null:
+		printerr("ERROR: MISSION_SELECT_SCENE is null. Check preload path.")
+		return
+		
+	var select_ui = MISSION_SELECT_SCENE.instantiate()
+	# 💡 修正: RootSceneではなく、ui_holderの子として追加する
+	ui_holder.add_child(select_ui) 
+	current_ui_scene = select_ui
+	
+	print("Transitioning to MissionSelectUI.")
