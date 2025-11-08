@@ -1,0 +1,52 @@
+[gd_scene load_steps=2 format=3 uid="uid://bh5oa5v4yevnj"]
+
+[ext_resource type="Script" uid="uid://ddkbugpctw2ro" path="res://scripts/windows/MissionExecutionUI.gd" id="1_ka5ts"]
+
+[node name="MissionExecutionUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ka5ts")
+
+[node name="VBoxRoot" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TopBar" type="HBoxContainer" parent="VBoxRoot"]
+layout_mode = 2
+
+[node name="MissionTitle" type="Label" parent="VBoxRoot/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TimerLabel" type="Label" parent="VBoxRoot/TopBar"]
+layout_mode = 2
+
+[node name="ExitButton" type="Button" parent="VBoxRoot/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Back MissionSelect"
+
+[node name="WorkspaceRoot" type="HBoxContainer" parent="VBoxRoot"]
+layout_mode = 2
+
+[node name="ToolLaunchBar" type="VBoxContainer" parent="VBoxRoot/WorkspaceRoot"]
+layout_mode = 2
+
+[node name="WorkspaceSplit" type="HSplitContainer" parent="VBoxRoot/WorkspaceRoot"]
+layout_mode = 2
+
+[node name="MDI_Canvas" type="Control" parent="VBoxRoot/WorkspaceRoot/WorkspaceSplit"]
+layout_mode = 2
+
+[node name="InfoSidebar" type="VBoxContainer" parent="VBoxRoot/WorkspaceRoot/WorkspaceSplit"]
+layout_mode = 2
+
+[connection signal="pressed" from="VBoxRoot/TopBar/ExitButton" to="." method="_on_exit_button_pressed"]

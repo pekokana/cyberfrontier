@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://dgewi7lp8l5de"]
+[gd_scene load_steps=10 format=3 uid="uid://dgewi7lp8l5de"]
 
 [ext_resource type="Script" uid="uid://bk35mw7wyc4yx" path="res://scripts/windows/MissionSelectUI.gd" id="1_u0l8q"]
 
@@ -25,6 +25,38 @@ shadow_size = 5
 shadow_offset = Vector2(0, 3.31)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_j75qj"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.203922)
+shadow_size = 5
+shadow_offset = Vector2(0, 3.31)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_4vr03"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_p6khi"]
+bg_color = Color(0.501961, 0.501961, 0.501961, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.203922)
+shadow_size = 5
+shadow_offset = Vector2(0, 3.31)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6orgr"]
+bg_color = Color(0.501961, 0.501961, 0.501961, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.203922)
+shadow_size = 5
+shadow_offset = Vector2(0, 3.31)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_edkqb"]
 bg_color = Color(1, 1, 1, 1)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
@@ -80,7 +112,7 @@ theme_override_colors/icon_pressed_color = Color(0, 0, 0, 1)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 30
+theme_override_font_sizes/font_size = 24
 theme_override_styles/focus = SubResource("StyleBoxEmpty_7y5uk")
 theme_override_styles/hover = SubResource("StyleBoxFlat_4vr03")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_npyb8")
@@ -115,6 +147,15 @@ autowrap_mode = 2
 
 [node name="btnStartMission" type="Button" parent="HBoxContainer/DetailsPanel/VBoxContainer"]
 layout_mode = 2
+theme_override_colors/icon_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = SubResource("StyleBoxEmpty_4vr03")
+theme_override_styles/hover = SubResource("StyleBoxFlat_p6khi")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_6orgr")
+theme_override_styles/normal = SubResource("StyleBoxFlat_edkqb")
 disabled = true
 text = "Start Mission"
 
