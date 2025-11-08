@@ -16,6 +16,7 @@ var open_windows: Dictionary = {}
 @onready var ui_holder: Control = $UI_Layer/UI_Holder
 @onready var sidebar_toggle: TextureButton = $UI_Layer/SidebarToggle
 @onready var btn_back_mission_select: Button = $UI_Layer/btnBackMissionSelect
+@onready var btn_start_mission: Button = $HBoxContainer/DetailsPanel/VBoxContainer/btnStartMission
 
 var sidebar_instance: Control = null # <--- Sidebarインスタンスを保持する変数
 var current_ui_instance: Control = null
