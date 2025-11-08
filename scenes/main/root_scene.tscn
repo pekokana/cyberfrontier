@@ -1,7 +1,39 @@
-[gd_scene load_steps=3 format=3 uid="uid://bno0or3q58up0"]
+[gd_scene load_steps=7 format=3 uid="uid://bno0or3q58up0"]
 
 [ext_resource type="Script" uid="uid://rbcrpbkunv4k" path="res://scripts/core/root_scene.gd" id="1_itajj"]
 [ext_resource type="Texture2D" uid="uid://b1dyqr3in2n24" path="res://assets/icons/sidebar64.png" id="2_c77vg"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_yoxxy"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4anhb"]
+bg_color = Color(0.501407, 0.501406, 0.501406, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.203922)
+shadow_size = 5
+shadow_offset = Vector2(0, 3.31)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sxapu"]
+bg_color = Color(0.501961, 0.501961, 0.501961, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.203922)
+shadow_size = 5
+shadow_offset = Vector2(0, 3.31)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cet4m"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.203922)
+shadow_size = 5
+shadow_offset = Vector2(0, 3.31)
 
 [node name="RootScene" type="Node2D"]
 script = ExtResource("1_itajj")
@@ -21,4 +53,25 @@ offset_right = 40.0
 offset_bottom = 40.0
 texture_normal = ExtResource("2_c77vg")
 
+[node name="btnBackMissionSelect" type="Button" parent="UI_Layer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -274.0
+offset_bottom = 42.0
+grow_horizontal = 0
+size_flags_vertical = 10
+theme_override_colors/icon_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = SubResource("StyleBoxEmpty_yoxxy")
+theme_override_styles/hover = SubResource("StyleBoxFlat_4anhb")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_sxapu")
+theme_override_styles/normal = SubResource("StyleBoxFlat_cet4m")
+text = "Back MissionSelect	"
+flat = true
+
 [connection signal="pressed" from="UI_Layer/SidebarToggle" to="." method="_on_sidebar_toggle_pressed"]
+[connection signal="pressed" from="UI_Layer/btnBackMissionSelect" to="." method="_on_btn_back_mission_select_pressed"]
