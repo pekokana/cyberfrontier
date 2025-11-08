@@ -104,12 +104,14 @@ layout_mode = 2
 
 [node name="ScrollContainer" type="ScrollContainer" parent="HBoxContainer/DetailsPanel/VBoxContainer"]
 layout_mode = 2
+size_flags_vertical = 3
 
 [node name="MissionDescription" type="Label" parent="HBoxContainer/DetailsPanel/VBoxContainer/ScrollContainer"]
 custom_minimum_size = Vector2(10, 10)
 layout_mode = 2
-size_flags_vertical = 1
-autowrap_mode = 3
+size_flags_horizontal = 3
+size_flags_vertical = 3
+autowrap_mode = 2
 
 [node name="btnStartMission" type="Button" parent="HBoxContainer/DetailsPanel/VBoxContainer"]
 layout_mode = 2
