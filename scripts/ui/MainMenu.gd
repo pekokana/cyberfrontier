@@ -9,13 +9,13 @@ func _ready():
 	options.visible = false
 	chkbnt_screen_size.button_pressed = true
 
-	# 💡 _ready()の最後にツリー全体を出力
-	print("====================================")
-	print("Current Scene Tree Structure:")
-	print("====================================")
-	# シーンツリーのルートから処理を開始
-	Global.print_node_tree(get_tree().get_root())
-	print("====================================")
+	## 💡 _ready()の最後にツリー全体を出力
+	#print("====================================")
+	#print("Current Scene Tree Structure:")
+	#print("====================================")
+	## シーンツリーのルートから処理を開始
+	#Global.print_node_tree(get_tree().get_root())
+	#print("====================================")
 
 
 
