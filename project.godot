@@ -20,7 +20,6 @@ config/icon="uid://bfx1h58wi3v0w"
 
 Global="*res://scripts/core/Global.gd"
 MissionManager="*res://scripts/managers/MissionManager.gd"
-SceneManager="*res://scripts/core/root_scene.gd"
 
 [display]
 

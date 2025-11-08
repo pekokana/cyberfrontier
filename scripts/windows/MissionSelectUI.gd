@@ -20,11 +20,18 @@ func _ready():
 		var mission = missions[id]
 		create_mission_button(id, mission)
 
+	# 💡 _ready()の最後にツリー全体を出力
+	print("====================================")
+	print("Current Scene Tree Structure:")
+	print("====================================")
+	# シーンツリーのルートから処理を開始
+	Global.print_node_tree(get_tree().get_root())
+	print("====================================")
+
+
 func create_mission_button(mission_id: String, data: Dictionary):
 	var button = Button.new()
 
-
-	
 	print("mission_id > " + data.get("mission_id", "N/A"))
 	print("title > " + data.get("title", "Untitled"))
 	print("difficulty > " + data.get("difficulty", "N/A"))
@@ -41,23 +48,25 @@ func create_mission_button(mission_id: String, data: Dictionary):
 	
 	mission_list_container.add_child(button)
 
+func get_root_scene():
+	# 💡 確実にRootSceneを取得するためのヘルパー
+	return get_node("/root/RootScene")
+
 func _on_mission_selected(mission_id: String):
 	print("Mission selected: ", mission_id)
 	
 	# RootSceneにアクセスしてミッションを開始させる (Global.gdにRootSceneの参照が必要な場合がある)
 	# ここでは簡単な方法として、ノードツリーをたどってRootSceneの関数を直接呼び出す
-	var root_scene = get_tree().get_root().get_child(0) # 通常はRootSceneが最初のノード
-	if root_scene.has_method("start_mission"):
+	var root_scene = get_root_scene()
+	if is_instance_valid(root_scene) and root_scene.has_method("start_mission"):
 		root_scene.start_mission(mission_id)
 		# 選択UIを閉じる
 		queue_free()
 
-
 func _on_btn_back_main_menu_pressed() -> void:
 	print("Back button pressed: Transitioning to MainMenuUI")
 	
-	var root_scene = get_tree().get_root().get_child(0)
-	
+	var root_scene = get_root_scene()
 	if is_instance_valid(root_scene) and root_scene.has_method("start_main_menu_mode"):
 		# 💡 RootSceneの遷移関数を呼び出す
 		root_scene.start_main_menu_mode()

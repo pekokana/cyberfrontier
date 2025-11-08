@@ -12,10 +12,11 @@ const MAIN_MENU_SCENE = preload("res://scenes/ui/MainMenu.tscn")
 var open_windows: Dictionary = {}
 
 # アニメーションを制御するノード (SidebarContainerの子として追加するのがベスト)
-
+@onready var ui_layer: CanvasLayer = $UI_Layer
 @onready var ui_holder: Control = $UI_Layer/UI_Holder
+@onready var sidebar_toggle: TextureButton = $UI_Layer/SidebarToggle
+@onready var btn_back_mission_select: Button = $UI_Layer/btnBackMissionSelect
 
-@onready var sidebar_toggle = $UI_Layer/SidebarToggle
 var sidebar_instance: Control = null # <--- Sidebarインスタンスを保持する変数
 var current_ui_instance: Control = null
 
@@ -30,9 +31,23 @@ const EXPANDED_WIDTH = 150.0 # 展開後の幅
 func _ready():
 	# 1.Sidebarインスタンスを作成し、UI_Layerの子として追加
 	var sidebar_ui = SIDEBAR_SCENE.instantiate() # 💡 修正: SIDEBAR_SCENEを使用
-	$UI_Layer.add_child(sidebar_ui)
+	if is_instance_valid(ui_layer):
+		$UI_Layer.add_child(sidebar_ui)
+	else:
+		print("FATAL ERROR: UI_Layer is null! Cannot add Sidebar.")
+	
+	if is_instance_valid(sidebar_toggle):
+		sidebar_toggle.visible = false # 👈 エラー回避
+	else:
+		print("FATAL ERROR: sidebar_toggle is null! Check the path $UI_Layer/SidebarToggle.")
 	sidebar_instance = sidebar_ui
 	sidebar_instance.visible = false # 初期状態は非表示とする
+	
+	if is_instance_valid(btn_back_mission_select):
+		btn_back_mission_select.visible = false
+	else:
+		print("FATAL ERROR: btn_back_mission_select is null! Check the path $UI_Layer/btnBackMissionSelect.")
+
 
 	# 2.アプリ起動ときはMission Select/Main Menuのいずれかから開始
 	#navigate_to_mission_select()
@@ -41,6 +56,9 @@ func _ready():
 # ----------
 # ヘルパーメソッド（UI切り替えの核とするロジック）
 # ----------
+func get_root_scene():
+	# 💡 確実にRootSceneを取得するためのヘルパー
+	return get_node("/root/RootScene")
 
 # 💡 追加: 既存のUIとウィンドウを全てクリーンアップする関数
 func _clear_ui_and_windows():
@@ -61,7 +79,10 @@ func _set_current_ui(new_ui: Control):
 		current_ui_instance.queue_free()
 		
 	# 2.新しいUIをUI_Holderに追加
-	ui_holder.add_child(new_ui)
+	if is_instance_valid(ui_holder):
+		ui_holder.add_child(new_ui)
+	else:
+		print("FATAL ERROR: UI_Holder is null! Cannot add UI_Holder.")
 	current_ui_instance = new_ui
 	# Full Rectプリセットで親(UI_Holder)全体に広げる
 	new_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -75,9 +96,12 @@ func navigate_to_mission_select():
 	var mission_select_instance = MISSION_SELECT_SCENE.instantiate() # 💡 修正: 定数 MISSION_SELECT_SCENEを使用
 	_set_current_ui(mission_select_instance) # 💡 修正: タイポ mission_select_instalce を修正
 	
-	sidebar_toggle.visible = false
+	if is_instance_valid(sidebar_toggle):
+		sidebar_toggle.visible = false
 	if is_instance_valid(sidebar_instance):
 		sidebar_instance.visible = false # Sidebarも非表示とする
+	if is_instance_valid(btn_back_mission_select):
+		btn_back_mission_select.visible = false
 
 # 💡 メインメニュー画面へ移行 (アプリ起動時や、MissionSelectUIの「戻る」ボタンから呼び出される)
 func start_main_menu_mode():
@@ -89,9 +113,12 @@ func start_main_menu_mode():
 	_set_current_ui(main_menu_instance)
 	
 	# Sidebarとトグルボタンは非表示
-	sidebar_toggle.visible = false
+	if is_instance_valid(sidebar_toggle):
+		sidebar_toggle.visible = false
 	if is_instance_valid(sidebar_instance):
 		sidebar_instance.visible = false
+	if is_instance_valid(btn_back_mission_select):
+		btn_back_mission_select.visible = false
 
 # ミッション開始関数
 func start_mission(mission_id: String):
@@ -115,7 +142,8 @@ func start_mission(mission_id: String):
 	sidebar_toggle.visible = true # トグルボタンを表示
 	if is_instance_valid(sidebar_instance):
 		sidebar_instance.visible = true # サイドバーを有効化
-	
+	btn_back_mission_select.visible = true
+		
 	# 5. UIにミッションタイトルや目標を表示する処理（今後の実装）
 	print("Mission Started: ", mission_data.get("title"))
 
@@ -129,7 +157,12 @@ func open_window(window_id: String, content_scene: PackedScene, initial_position
 	var mdi_window = MDI_WINDOW_SCENE.instantiate() # 💡 修正: MDI_WINDOW_SCENEを使用
 	#self.add_child(mdi_window) # RootSceneの子として追加
 	# UI_Layerの子供として追加する
-	$UI_Layer.add_child(mdi_window)
+	if is_instance_valid(ui_layer):
+		$UI_Layer.add_child(mdi_window)
+	else:
+		print("ERROR: UI_layer is null! Cannot open window.")
+		mdi_window.queue_free()
+		return
 	
 	# ... (以降の open_window 関数は変更なし)
 
@@ -182,3 +215,9 @@ func _on_sidebar_toggle_pressed() -> void:
 	tween.tween_property(sidebar_toggle, "position", Vector2(target_x, sidebar_toggle.position.y), TWEEN_DURATION)\
 		.set_trans(Tween.TRANS_QUAD)\
 		.set_ease(Tween.EASE_OUT)
+
+
+func _on_btn_back_mission_select_pressed() -> void:
+	print("Back button pressed: Transitioning to MissionSelectUI")
+	
+	navigate_to_mission_select()
