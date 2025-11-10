@@ -7,7 +7,12 @@ extends Control
 func _ready():
 	main_buttons.visible = true
 	options.visible = false
-	chkbnt_screen_size.button_pressed = true
+	#chkbnt_screen_size.button_pressed = true
+
+	if DisplayServer.window_get_mode() == DisplayServer.WINDOW_MODE_FULLSCREEN:
+		chkbnt_screen_size.button_pressed = true
+	else:
+		chkbnt_screen_size.button_pressed = false
 
 	## 💡 _ready()の最後にツリー全体を出力
 	#print("====================================")
@@ -49,11 +54,31 @@ func _on_btn_start_pressed() -> void:
 
 
 func _on_btn_options_back_pressed() -> void:
-	_ready()
+	#_ready()
+	print("pressed btnOptionsBack")
+	main_buttons.visible = true
+	options.visible = false
+	
+	# 💡 ここに、フルスクリーンを解除するようなコード（例：get_window().mode = Window.MODE_FULLSCREEN の逆の処理）
+	# が含まれていないか確認してください。
 
 
-func _on_chkbnt_screen_size_toggled(toggled_on: bool) -> void:
-	if toggled_on == true:
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+func _on_chkbnt_screen_size_toggled(button_pressed: bool) -> void:
+	#if toggled_on == true:
+		#DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+	#else:
+		#DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	# GodotのWindowサーバ（DisplayServer）を取得
+	var display_server = DisplayServer
+	
+	if button_pressed:
+		print("Setting screen to Fullscreen mode.")
+		# チェックが入っている場合: フルスクリーンにする
+		display_server.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 	else:
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+		print("Setting screen to Windowed mode.")
+		# チェックが外れている場合: ウィンドウモードにする
+		display_server.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	
+	# 重要: 設定が元に戻ってしまうため、この画面を閉じる際（Optionsを非表示にする際）に、
+	#       フルスクリーンの状態を元に戻すような処理がないか確認してください。
