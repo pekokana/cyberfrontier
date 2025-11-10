@@ -129,6 +129,24 @@ func _print(message: String, type: OutputType = OutputType.SYSTEM):
 			prefix = ""
 	output_box.text += prefix + message + "\n"
 	
+	# 💡 【修正】@onreadyで取得したScrollContainer内のVScrollBarを利用する
+	# スクロールバーが計算を完了するのを待つため、set_deferredを使用するのが最も確実です。
+	# TextEditにテキストが追加された後、次のフレームでレイアウトとスクロールバーの値が更新されます。
+	
+	# 1. VScrollBarノードの最大スクロール値を取得
+	var max_scroll_value = scrollbar.get_max() 
+	
+	# 2. VScrollBarの値を最大値に設定し、最下部までスクロール（遅延実行）
+	# Godot 3.xの場合: set_value()
+	# Godot 4.xの場合: set_value() または set_scroll_vertical()
+	scrollbar.set_deferred("value", max_scroll_value)
+	
+	# 💡 補足: set_deferredを使わず、現在のフレームで強制的に値を設定したい場合は、
+	# output_boxのlayout_update_scrollbar()などを呼んでから set_value() を試す方法もありますが、
+	# set_deferredが最もシンプルで安全な解決策です。
+	
+	input_line.grab_focus()
+
 
 func _input(event):
 	# InputLineがフォーカスを持っている、かつキーボードイベントの場合

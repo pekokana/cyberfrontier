@@ -1,0 +1,55 @@
+{
+  "mission_id": "Web-E-003",
+  "version": "1.0",
+  "title": "XSSの発見とセッション情報 (Cookie) の確認",
+  "category": "Web/SQL",
+  "difficulty": "Easy",
+  "description": "ターゲットサーバーの掲示板機能には、ユーザー入力値に対するエスケープ処理の不備があります。ブラウザ機能を使用して、コメント欄にXSSのペイロードを挿入し、アプリケーション内に存在する仮想セッション情報（Cookie）をアラートとして表示させてください。",
+
+  "setup": {
+	"target_server": "192.168.1.20",
+	"required_tool": [
+	  "Browser",
+	  "Terminal" 
+	]
+  },
+
+  "timing": {
+	"has_time_limit": false
+  },
+
+  "steps": [
+	{
+	  "step_id": 1,
+	  "hint": "まずはターゲットサーバー（192.168.1.20）の掲示板画面に『ブラウザ機能』でアクセスしてください。",
+	  "action": "browser_access"
+	},
+	{
+	  "step_id": 2,
+	  "hint": "コメント投稿欄が脆弱です。テストとして、最もシンプルなXSSペイロードを試してみましょう。例：<script>alert('XSS Test');</script>",
+	  "action": "browser_input"
+	},
+	{
+	  "step_id": 3,
+	  "hint": "コードが実行されることを確認したら、次に目標であるセッション情報の表示を試みましょう。JavaScriptで現在のドキュメントのCookieを取得するコードを挿入してください。",
+	  "action": "browser_input",
+	  "required_command": "<script>alert(document.cookie);</script>"
+	},
+	{
+	  "step_id": 4,
+	  "hint": "アラートで表示されたCookie情報の中にフラグが含まれています。そのフラグ（Cookieの値）を提出してください。",
+	  "action": "flag_submission"
+	}
+  ],
+
+  "clear_condition": {
+	"type": "flag_submission",
+	"flag": "cf_flag{S3ss1on_ID=user_2048}",
+	"success_message": "クリア！クライアントサイドで悪意のあるコードを実行させることに成功しました。これでXSSの基本的なメカニズムと、Cookieを標的にできることを理解できました。"
+  },
+
+  "solution_explanation": {
+	"principle": "クロスサイトスクリプティング（XSS）は、Webサイトの入力内容が適切にサニタイズ（無害化）されずにHTMLとしてレンダリングされることで発生します。攻撃者が挿入した`<script>`タグがユーザーのブラウザ上で実行され、セッションCookieの窃取やページの改ざんが可能になります。",
+	"defense": "ユーザーからの入力値をサーバー側で信頼せず、データベースに保存する前、およびHTMLとして出力する直前に、**エスケープ処理**（例: `<`を`&lt;`に変換）を施すことが必須です。モダンなWebフレームワークを使用し、Content Security Policy (CSP) を設定することも重要です。"
+  }
+}

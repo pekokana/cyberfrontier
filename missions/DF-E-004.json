@@ -1,0 +1,59 @@
+{
+  "mission_id": "DF-E-004",
+  "version": "1.0",
+  "title": "初動対応：不審な通信元IPの特定と封じ込め",
+  "category": "Defense/Incident Response",
+  "difficulty": "Easy",
+  "description": "システムがWebサーバーへのブルートフォースアタックを検知し、SIEMからアラートが上がりました。この攻撃を封じ込めるため、アラート情報に含まれる攻撃元IPアドレスを特定し、Firewall設定機能を用いて、そのIPからの通信を迅速にすべて遮断してください。",
+
+  "setup": {
+	"target_server": "10.0.0.5",
+	"required_tool": [
+	  "Firewall設定機能"
+	],
+	"initial_files": [
+	  {
+		"path": "/home/user/SIEM_alert.txt",
+		"type": "text",
+		"description": "SIEMからの緊急アラート情報。攻撃の種類、ターゲット、攻撃元のIPアドレスが含まれる。"
+	  }
+	]
+  },
+
+  "timing": {
+	"has_time_limit": true,
+	"limit_seconds": 300,
+	"time_up_action": "AUTO_FAIL",
+	"display_countdown": true
+  },
+
+  "steps": [
+	{
+	  "step_id": 1,
+	  "hint": "まずはアラート情報（/home/user/SIEM_alert.txt）をTerminalで開き、攻撃元IPアドレスを特定してください。",
+	  "action": "terminal_input",
+	  "required_command": "cat /home/user/SIEM_alert.txt"
+	},
+	{
+	  "step_id": 2,
+	  "hint": "攻撃元IPアドレス（例: 5.188.230.12）が判明したら、すぐにサイドバーから『Firewall設定機能』を起動してください。時間的制約に注意！",
+	  "action": "tool_launch"
+	},
+	{
+	  "step_id": 3,
+	  "hint": "特定したIPアドレスからの**すべての通信を拒否（DROP）**するルールを設定し、適用（Activate）してください。",
+	  "action": "firewall_rule_set"
+	}
+  ],
+
+  "clear_condition": {
+	"type": "config_change",
+	"flag": "Firewall_Rule_Active_5.188.230.12_DROP",
+	"success_message": "クリア！迅速な初動対応により、攻撃元IP（5.188.230.12）からの通信を封じ込めることに成功しました。時間的制約のあるインシデント対応の基礎を習得しました。"
+  },
+
+  "solution_explanation": {
+	"principle": "インシデント対応における『封じ込め（Containment）』は、被害の拡大を防ぐために最も優先される処置です。攻撃元IPを特定し、ネットワーク境界のファイアウォールやホストベースのファイアウォールで通信を遮断することで、攻撃の影響を一時的に停止させます。",
+	"defense": "実際の環境では、手動設定ではなく、SIEMやSOAR（Security Orchestration, Automation and Response）システムがアラートに基づき、自動でファイアウォールルールを追加・適用することが理想的です。また、常に不要なポートを閉じておくことが基本です。"
+  }
+}
