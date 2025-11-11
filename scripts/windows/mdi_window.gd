@@ -28,6 +28,10 @@ func initialize(title_text: String, content_scene: PackedScene):
 	# 閉じるボタンのシグナル接続
 	close_requested.connect(_on_close_requested)
 
+
+
+
+
 func _on_close_requested():
 	# ウィンドウが閉じられたら、ノードツリーから削除
 	queue_free()

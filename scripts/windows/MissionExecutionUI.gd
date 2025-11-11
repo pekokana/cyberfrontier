@@ -13,6 +13,7 @@ const TOOL_WINDOW_SCENE = preload("res://scenes/windows/mdi_window.tscn")
 const AVAILABLE_TOOLS = {
 	"Terminal": "res://scenes/windows/terminal_ui.tscn",
 	"NetworkMap": "res://scenes/windows/NetworkMapUI.tscn",
+	"FileExplorer": "res://scenes/windows/file_explorer_ui.tscn",
 	# 必要に応じてツールを追加
 }
 const ICON_SIZE = 32 # 💡 ツールバーに配置するアイコンの推奨サイズ (32x32)
@@ -53,16 +54,14 @@ func initialize_mission(id: String, data: Dictionary):
 	setup_ui()
 	populate_tool_launch_bar()
 	
-	# 💡 ミッション開始時のロジック（タイマー開始、仮想環境起動など）をここに追加
-	# 💡 _ready()の最後にツリー全体を出力
-	print("====================================")
-	print("Current Scene Tree Structure:")
-	print("====================================")
-	# シーンツリーのルートから処理を開始
-	Global.print_node_tree(get_tree().get_root())
-	print("====================================")
-
-
+	## 💡 ミッション開始時のロジック（タイマー開始、仮想環境起動など）をここに追加
+	## 💡 _ready()の最後にツリー全体を出力
+	#print("====================================")
+	#print("★MissoinExecutionUI - Current Scene Tree Structure:")
+	#print("====================================")
+	## シーンツリーのルートから処理を開始
+	#Global.print_node_tree(get_tree().get_root())
+	#print("====================================")
 
 # ==============================================================================
 # UIセットアップ
@@ -135,7 +134,19 @@ func _on_tool_launch_button_pressed(tool_name: String, tool_scene_path: String):
 	#    この関数内でコンテンツのインスタンス化とContentContainerへの配置が行われます 
 	if mdi_window.has_method("initialize"):
 		mdi_window.initialize(tool_name, tool_component_scene)
-	
+
+	# FileExplorerの場合、初期パスを設定する
+		if tool_name == "FileExplorer":
+			# MDIWindowの initialize() 処理が完了し、ContentContainerに子ノードが追加されるのを
+			# 次のフレームまで待機するために call_deferred を使用する
+			
+			# 遅延呼び出しを行う関数を Callable オブジェクトとして作成
+			var set_initial_path = Callable(self, "_set_file_explorer_initial_path").bind(mdi_window)
+			
+			# call_deferred で次のフレームで実行する
+			set_initial_path.call_deferred()
+
+
 	# 4. Windowノードをシーンツリーのルート（最上位）に追加
 	get_tree().get_root().add_child(mdi_window) 
 	
@@ -144,6 +155,20 @@ func _on_tool_launch_button_pressed(tool_name: String, tool_scene_path: String):
 	
 	print("Launched MDI tool: ", tool_name)
 
+# 遅延実行されるファイルエクスプローラーの初期化関数
+# mdi_windowがシーンツリーに追加され、initializeが完了した後、次のフレームで実行される
+func _set_file_explorer_initial_path(mdi_window: Window):
+	# 1. ContentContainerの最初の子ノードが FileExplorerUI であると仮定して取得
+	var tool_instance = mdi_window.get_node("ContentContainer").get_child(0)
+	
+	var initial_path = "/home/user" 
+	
+	# 2. FileExplorerUIの current_path 変数に値を設定
+	if is_instance_valid(tool_instance) and tool_instance.get_script() != null and "current_path" in tool_instance:
+		tool_instance.current_path = initial_path
+		mdi_window.title = "File Explorer: " + initial_path
+	else:
+		printerr("File Explorer instance not ready or 'current_path' not found.")
 
 # 終了ボタンが押されたときの処理
 func _on_exit_button_pressed():
