@@ -14,9 +14,9 @@ func _ready():
 	else:
 		chkbnt_screen_size.button_pressed = false
 
-	## 💡 _ready()の最後にツリー全体を出力
+	### 💡 _ready()の最後にツリー全体を出力
 	#print("====================================")
-	#print("Current Scene Tree Structure:")
+	#print("★MainMenu - Current Scene Tree Structure:")
 	#print("====================================")
 	## シーンツリーのルートから処理を開始
 	#Global.print_node_tree(get_tree().get_root())

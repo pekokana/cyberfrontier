@@ -19,6 +19,7 @@ config/icon="uid://bfx1h58wi3v0w"
 [autoload]
 
 Global="*res://scripts/core/Global.gd"
+VFSCore="*res://scripts/core/VFSCore.gd"
 MissionManager="*res://scripts/managers/MissionManager.gd"
 
 [display]

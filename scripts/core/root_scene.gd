@@ -34,6 +34,33 @@ var sidebar_expanded: bool = false
 const COLLAPSED_WIDTH = 20.0
 const EXPANDED_WIDTH = 150.0 # 展開後の幅
 
+
+func _vfstest():
+	# 模擬JSONデータ
+	var mock_initial_files = [
+		{"path": "/home/user/README.txt", "type": "text", "content": "Welcome to CyberFrontier."},
+		# 親ディレクトリ（/home/user/logs）は自動で作成される
+		{"path": "/home/user/logs/auth.log", "type": "text", "content": "Failed login attempt from 5.188.230.12\nAccepted login from 192.168.1.1\nFailed login attempt from 5.188.230.12"}
+	]
+	
+	# 手動でのディレクトリ作成は削除
+	# var logs_node = VFSCore.VFSNode.new("logs", VFSCore.VFSNode.NodeType.DIR, "/home/user/logs")
+	# VFSCore.root_node.children["logs"] = logs_node
+	
+	# load_mission_setupがすべてを処理
+	VFSCore.load_mission_setup(mock_initial_files)
+	
+	# テスト: ls コマンドの出力
+	print("--- LS Test ---")
+	var home_contents = VFSCore.get_directory_contents("/home/user")
+	print(home_contents) # Expected: logs, README.txt
+
+	# テスト: cat コマンドの出力
+	print("--- CAT Test ---")
+	var log_content = VFSCore.read_file("/home/user/logs/auth.log")
+	print(log_content)
+
+
 func _ready():
 	# 1.Sidebarインスタンスを作成し、UI_Layerの子として追加
 	var sidebar_ui = SIDEBAR_SCENE.instantiate() # 💡 修正: SIDEBAR_SCENEを使用
@@ -54,6 +81,8 @@ func _ready():
 	else:
 		print("FATAL ERROR: btn_back_mission_select is null! Check the path $UI_Layer/btnBackMissionSelect.")
 
+	# vfs-test
+	_vfstest()
 
 	# 2.アプリ起動ときはMission Select/Main Menuのいずれかから開始
 	#navigate_to_mission_select()
@@ -68,17 +97,7 @@ func get_root_scene():
 
 # 💡 追加: 既存のUIとウィンドウを全てクリーンアップする関数
 func _clear_ui_and_windows():
-	## 古い全画面UIを削除
-	#if is_instance_valid(current_ui_instance):
-		#current_ui_instance.queue_free()
-		#current_ui_instance = null
-		#
-	## 開いているMDIウィンドウを全て削除
-	#for id in open_windows.keys():
-		#if is_instance_valid(open_windows[id]):
-			#open_windows[id].queue_free()
-	#open_windows.clear()
-	#
+
 	# 1. 古い全画面UIを削除
 	if is_instance_valid(current_ui_instance):
 		print("DEBUG: [Cleanup] Clearing current_ui_instance:", current_ui_instance.name)
@@ -105,6 +124,7 @@ func _clear_ui_and_windows():
 		# 💡 get_children()の配列をコピーし、逆順に反復処理することで、
 		#    ノード解放によるツリー構造の変化を安全に扱う
 		var children_to_check = ui_layer.get_children().duplicate()
+
 		
 		for child in children_to_check:
 			# ノードがまだ有効で、解放待ちでないことを確認
@@ -124,8 +144,9 @@ func _clear_ui_and_windows():
 	# ルートの子ノードをすべてチェック
 	for child in root_children:
 		if is_instance_valid(child) and not child.is_queued_for_deletion():
+			
 			# 永続ノード（Global, MissionManager, RootScene）ではないノードを解放
-			if child.get_name() != "Global" and child.get_name() != "MissionManager" and child.get_name() != "RootScene":
+			if child.get_name() != "Global" and child.get_name() != "MissionManager"  and child.get_name() != "VFSCore" and child.get_name() != "RootScene":
 				
 				# Windowノード（MDIウィンドウ）か、その他の不要なグローバルノードを解放
 				print("FATAL DEBUG: [Cleanup] FORCIBLY FREEING ROOT NODE CHILD (MDI Window):", child.name, " (Type:", child.get_class(), ")")
