@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://ctsnekdd4o1ra"]
 
-[ext_resource type="Script" uid="uid://chbi0vkts48l6" path="res://scenes/windows/file_explorer_ui.gd" id="1_d74jn"]
+[ext_resource type="Script" uid="uid://chbi0vkts48l6" path="res://scripts/windows/file_explorer_ui.gd" id="1_d74jn"]
 
 [node name="FileExplorerUI" type="Control"]
 layout_mode = 3

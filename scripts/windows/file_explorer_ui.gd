@@ -94,18 +94,36 @@ func _on_vfs_tree_item_activated():
 	
 # エディタウィンドウを開くヘルパー関数
 func _open_file_in_editor(path: String, title: String, content: String):
-	# RootSceneのopen_window関数を呼び出してエディタウィンドウを開く
-	if root_scene.has_method("open_window"):
-		# 1. MDIウィンドウをインスタンス化
-		var mdi_window = MDI_WINDOW_SCENE.instantiate()
-		mdi_window.title = title
+	# 1. MDIラッパーウィンドウをインスタンス化
+	var mdi_window = MDI_WINDOW_SCENE.instantiate()
+	
+	# 2. MDIWindowの initialize 関数を呼び出し、タイトルとTextEditorのPackedSceneを設定
+	if mdi_window.has_method("initialize"):
+		# initialize にPackedScene（TextEditorUI.tscn）を渡す
+		mdi_window.initialize(title, TEXT_EDITOR_SCENE) 
 		
-		# 2. エディタUIをインスタンス化し、MDIウィンドウに組み込む
-		var editor_ui = TEXT_EDITOR_SCENE.instantiate()
+		# 3. MDIウィンドウをシーンツリーのルートに追加 (MissionExecutionUIの起動ロジックに合わせる)
+		# Windowノードは親のCanvasではなく、ルートに追加することでトップレベルウィンドウとして機能します
+		get_tree().get_root().add_child(mdi_window)
 		
-		# 3. エディタにファイル内容をセット
-		if editor_ui.has_method("load_content"):
-			editor_ui.load_content(path, content)
+		# 4. ContentContainerの子（TextEditorUIインスタンス）を取得し、内容を設定する
+		# mdi_window.initialize()内でインスタンス化が完了しているため、すぐにアクセス可能です。
 		
-		# 4. RootSceneのopen_window関数を通じてMDIウィンドウを開く
-		root_scene.open_window(title, editor_ui)
+		# ContentContainerノードへのパスを直接指定
+		var content_container = mdi_window.get_node("ContentContainer")
+		
+		if is_instance_valid(content_container) and content_container.get_child_count() > 0:
+			var editor_ui = content_container.get_child(0)
+			
+			if editor_ui.has_method("load_content"):
+				editor_ui.load_content(path, content) # ファイル内容のロード
+			
+			# 5. 初期位置とサイズを設定 (複数のウィンドウが重ならないようにランダムに設定)
+			mdi_window.position = Vector2i(randf_range(50, 200), randf_range(50, 200))
+			mdi_window.size = Vector2i(400, 300)
+			
+		else:
+			printerr("Error: Text Editor UI instance not found inside MDIWindow.")
+			mdi_window.queue_free()
+	else:
+		printerr("Error: MDIWindow does not have 'initialize' method.")
