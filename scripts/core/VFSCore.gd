@@ -172,7 +172,6 @@ func resolve_path(path: String, base_dir: String) -> String:
 		## ルートディレクトリまで戻った場合 ('') -> '/' にする
 		return "/" if parent_path.is_empty() else parent_path.simplify_path()
 
-
 	# 3. 相対パスの結合
 	var resolved_path = base_dir
 	if not resolved_path.ends_with("/"):
@@ -181,3 +180,29 @@ func resolve_path(path: String, base_dir: String) -> String:
 	resolved_path += path
 	
 	return resolved_path.simplify_path()
+
+
+# ファイルの内容を保存する関数
+# 成功したら true、失敗したら false を返す
+func save_file_content(path: String, content: String) -> bool:
+	var node = get_node_by_path(path)
+	
+	# ノードが存在するか、かつファイルタイプであるかを確認
+	if not node:
+		printerr("VFS Save Error: Node not found at path: ", path)
+		return false
+	
+	# 💡 NodeTypeへの参照は VFSNode.gd の定数を使用
+	# VFSNode.gd が正しくロードされていることを確認してください。
+	var VFS_NODE_SCRIPT = preload("res://scripts/core/VFSNode.gd") # 実際のパスに修正
+	
+	if node.type != VFS_NODE_SCRIPT.NodeType.FILE:
+		printerr("VFS Save Error: Path is not a file: ", path)
+		return false
+	
+	# 内容を更新
+	node.content = content
+	
+	# 💡 ここで、VFSが永続化される場合は、永続化ロジック（例: JSONへの書き出し）を追加
+	
+	return true

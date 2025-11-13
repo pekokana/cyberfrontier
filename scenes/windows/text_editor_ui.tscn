@@ -1,18 +1,77 @@
-[gd_scene load_steps=2 format=3 uid="uid://sjwntphgicou"]
+[gd_scene load_steps=6 format=3 uid="uid://sjwntphgicou"]
 
-[ext_resource type="Script" uid="uid://ix8rf2qnwv26" path="res://scenes/windows/text_editor_ui.gd" id="1_3w0ra"]
+[ext_resource type="Script" uid="uid://ix8rf2qnwv26" path="res://scripts/windows/text_editor_ui.gd" id="1_3w0ra"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_3w0ra"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cjndp"]
+bg_color = Color(0.501407, 0.501406, 0.501406, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.203922)
+shadow_size = 5
+shadow_offset = Vector2(0, 3.31)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fatyv"]
+bg_color = Color(0.501961, 0.501961, 0.501961, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.203922)
+shadow_size = 5
+shadow_offset = Vector2(0, 3.31)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_4y3lg"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_color = Color(0, 0, 0, 0.203922)
+shadow_size = 5
+shadow_offset = Vector2(0, 3.31)
 
 [node name="TextEditorUI" type="Control"]
 layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_3w0ra")
 
-[node name="ContentTextEdit" type="TextEdit" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="TopBar" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="FileNameLabel" type="Label" parent="VBoxContainer/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="SaveButton" type="Button" parent="VBoxContainer/TopBar"]
+layout_mode = 2
+theme_override_colors/icon_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_styles/focus = SubResource("StyleBoxEmpty_3w0ra")
+theme_override_styles/hover = SubResource("StyleBoxFlat_cjndp")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_fatyv")
+theme_override_styles/normal = SubResource("StyleBoxFlat_4y3lg")
+text = "Save"
+
+[node name="ContentTextEdit" type="TextEdit" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
