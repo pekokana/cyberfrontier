@@ -146,7 +146,11 @@ func _clear_ui_and_windows():
 		if is_instance_valid(child) and not child.is_queued_for_deletion():
 			
 			# 永続ノード（Global, MissionManager, RootScene）ではないノードを解放
-			if child.get_name() != "Global" and child.get_name() != "MissionManager"  and child.get_name() != "VFSCore" and child.get_name() != "RootScene":
+			if child.get_name() != "Global" \
+				and child.get_name() != "MissionManager" \
+				and child.get_name() != "VFSCore" \
+				and child.get_name() != "RootScene" \
+				and child.get_name() != "MissionState":
 				
 				# Windowノード（MDIウィンドウ）か、その他の不要なグローバルノードを解放
 				print("FATAL DEBUG: [Cleanup] FORCIBLY FREEING ROOT NODE CHILD (MDI Window):", child.name, " (Type:", child.get_class(), ")")

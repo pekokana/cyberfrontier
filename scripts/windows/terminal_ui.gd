@@ -33,13 +33,13 @@ func _ready():
 	# VFSCoreがAutoLoad名として登録されていると仮定し、直接アクセスします。
 	vfs_core = VFSCore
 
-	# 💡 _ready()の最後にツリー全体を出力
-	print("====================================")
-	print("@@ MDI Window Scene Tree Structure:")
-	print("====================================")
-	# シーンツリーのルートから処理を開始
-	Global.print_node_tree(get_tree().get_root())
-	print("====================================")
+	## _ready()の最後にツリー全体を出力
+	#print("====================================")
+	#print("@@ MDI Window Scene Tree Structure:")
+	#print("====================================")
+	## シーンツリーのルートから処理を開始
+	#Global.print_node_tree(get_tree().get_root())
+	#print("====================================")
 
 
 	# VFSCoreが正しく初期化されているか確認
@@ -47,7 +47,7 @@ func _ready():
 		_print("[FATAL ERROR] VFSCore is not loaded or AutoLoad setup is incorrect.", OutputType.SYSTEM)
 		return
 
-	_print("[INFO] VFSCore successfully accessed by terminal_ui.", OutputType.SYSTEM) # <-- 成功確認メッセージの追加推奨
+	#_print("[INFO] VFSCore successfully accessed by terminal_ui.", OutputType.SYSTEM) # <-- 成功確認メッセージの追加推奨
 
 	_register_builtin_commands()
 	_load_external_commands()
@@ -91,7 +91,7 @@ func open_map_window():
 
 func _register_builtin_commands():
 	_register_command("help", preload("res://commands/help.gd").new())
-	_register_command("scan", preload("res://commands/scan.gd").new())
+	_register_command("pscan", preload("res://commands/pscan.gd").new())
 	_register_command("echo", preload("res://commands/echo.gd").new())
 	_register_command("ver", preload("res://commands/ver.gd").new())
 	_register_command("clear", preload("res://commands/clear.gd").new())
@@ -123,7 +123,7 @@ func _register_command(cmd_name: String, instance: Object):
 func _on_command_entered(text: String):
 	var command_line = text.strip_edges()
 	if command_line == "":
-		# 💡 空コマンドの場合もプロンプトを再表示
+		# 空コマンドの場合もプロンプトを再表示
 		_update_prompt()
 		return
 

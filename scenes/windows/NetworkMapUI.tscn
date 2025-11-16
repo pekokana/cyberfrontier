@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://cwgav3ui7hell"]
+[gd_scene load_steps=3 format=3 uid="uid://cwgav3ui7hell"]
 
-[ext_resource type="Script" uid="uid://htxea58llhwj" path="res://scripts/managers/NetworkManager.gd" id="1_pid6s"]
+[ext_resource type="Script" uid="uid://dow25vcyipbwy" path="res://scripts/windows/NetworkMapUI.gd" id="1_yq7ih"]
+[ext_resource type="Script" uid="uid://cakml8c1c71ae" path="res://scripts/windows/MapCanvas.gd" id="2_ys756"]
 
 [node name="NetworkMapUI" type="Control"]
 layout_mode = 3
@@ -9,6 +10,13 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+script = ExtResource("1_yq7ih")
 
-[node name="NetworkMap" type="Node2D" parent="."]
-script = ExtResource("1_pid6s")
+[node name="MapCanvas" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_ys756")
