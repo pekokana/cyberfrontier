@@ -4,19 +4,20 @@ extends Control
 # シングルトンや他のシーンへのパス
 const ROOT_SCENE_PATH = "/root/RootScene"
 
-# 💡 外部シーンファイルへのプリロード
+# 外部シーンファイルへのプリロード
 # これらのシーンは、別途作成する必要があります (MDIのドラッグ/リサイズを担うラッパー)
 const TOOL_WINDOW_SCENE = preload("res://scenes/windows/mdi_window.tscn")
 
-# 💡 起動可能なツールの一覧を定義
+# 起動可能なツールの一覧を定義
 # (キー:ボタンに表示する名前, 値:ツールの実体シーンパス)
 const AVAILABLE_TOOLS = {
 	"Terminal": "res://scenes/windows/terminal_ui.tscn",
-	"NetworkMap": "res://scenes/windows/NetworkMapUI.tscn",
 	"FileExplorer": "res://scenes/windows/file_explorer_ui.tscn",
+	"NetworkMap": "res://scenes/windows/NetworkMapUI.tscn",
+	"PortScanner": "res://scenes/windows/PortScannerUI.tscn",
 	# 必要に応じてツールを追加
 }
-const ICON_SIZE = 32 # 💡 ツールバーに配置するアイコンの推奨サイズ (32x32)
+const ICON_SIZE = 32 # ツールバーに配置するアイコンの推奨サイズ (32x32)
 
 # ==============================================================================
 # UIノードの参照 (@onready)
@@ -49,19 +50,29 @@ func initialize_mission(id: String, data: Dictionary):
 
 	current_mission_id = id
 	mission_data = data
-	
+
+	# MissionState AutoLoad にミッションデータを格納する
+	#    MissionState.gd に 'mission_network_data' 変数が宣言されている前提です。
+	if is_instance_valid(MissionState):
+		# Pscanコマンドは MissionState.mission_network_data.get("scan_data", {}) 
+		# を参照するため、全体の data を代入する必要があります。
+		MissionState.mission_network_data = data.get("network", {}) 
+		print("DEBUG: Mission network data loaded into MissionState.mission_network_data.")
+	else:
+		printerr("FATAL ERROR: MissionState AutoLoad is not available.")
+		
 	print("Exec initialize_mission." + " / mission-id:" + str(current_mission_id) )
 	setup_ui()
 	populate_tool_launch_bar()
 	
-	## 💡 ミッション開始時のロジック（タイマー開始、仮想環境起動など）をここに追加
-	## 💡 _ready()の最後にツリー全体を出力
-	#print("====================================")
-	#print("★MissoinExecutionUI - Current Scene Tree Structure:")
-	#print("====================================")
-	## シーンツリーのルートから処理を開始
-	#Global.print_node_tree(get_tree().get_root())
-	#print("====================================")
+	# ミッション開始時のロジック（タイマー開始、仮想環境起動など）をここに追加
+	# _ready()の最後にツリー全体を出力
+	print("====================================")
+	print("★MissoinExecutionUI - Current Scene Tree Structure:")
+	print("====================================")
+	# シーンツリーのルートから処理を開始
+	Global.print_node_tree(get_tree().get_root())
+	print("====================================")
 
 # ==============================================================================
 # UIセットアップ
@@ -98,7 +109,7 @@ func populate_tool_launch_bar():
 	for tool_name in AVAILABLE_TOOLS.keys():
 		var button = Button.new()
 		
-		# 💡 ここでアイコンを設定する場合
+		# ここでアイコンを設定する場合
 		# var icon_texture = load("res://assets/icons/" + tool_name + "_32x32.png")
 		# if icon_texture:
 		# 	button.icon = icon_texture
