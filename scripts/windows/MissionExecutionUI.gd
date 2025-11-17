@@ -7,14 +7,18 @@ const ROOT_SCENE_PATH = "/root/RootScene"
 # 外部シーンファイルへのプリロード
 # これらのシーンは、別途作成する必要があります (MDIのドラッグ/リサイズを担うラッパー)
 const TOOL_WINDOW_SCENE = preload("res://scenes/windows/mdi_window.tscn")
+const SOLUTION_SUBMISSION_SCENE = preload("res://scenes/windows/SolutionSubmissionUI.tscn") 
+const HINT_BOARD_SCENE = preload("res://scenes/windows/HintBoardUI.tscn")
 
 # 起動可能なツールの一覧を定義
 # (キー:ボタンに表示する名前, 値:ツールの実体シーンパス)
 const AVAILABLE_TOOLS = {
+	"HintBoard": "res://scenes/windows/HintBoardUI.tscn",
 	"Terminal": "res://scenes/windows/terminal_ui.tscn",
 	"FileExplorer": "res://scenes/windows/file_explorer_ui.tscn",
 	"NetworkMap": "res://scenes/windows/NetworkMapUI.tscn",
 	"PortScanner": "res://scenes/windows/PortScannerUI.tscn",
+	#"PacketCapture": "res://scenes/windows/packet_capture_ui.tscn",
 	# 必要に応じてツールを追加
 }
 const ICON_SIZE = 32 # ツールバーに配置するアイコンの推奨サイズ (32x32)
@@ -27,7 +31,7 @@ const ICON_SIZE = 32 # ツールバーに配置するアイコンの推奨サイ
 @onready var mission_title_label = $VBoxRoot/TopBar/MissionTitle
 @onready var timer_label = $VBoxRoot/TopBar/TimerLabel
 @onready var exit_button = $VBoxRoot/TopBar/ExitButton
-#@onready var objective_text = $VBoxRoot/WorkspaceRoot/WorkspaceSplit/InfoSidebar/ObjectivePanel/ScrollContainer/ObjectiveText
+@onready var submit_solution_button = $VBoxRoot/TopBar/SubmitSolutionButton
 
 # MDI制御に必要な主要ノード
 @onready var tool_launch_bar = $VBoxRoot/WorkspaceRoot/ToolLaunchBar 
@@ -54,12 +58,16 @@ func initialize_mission(id: String, data: Dictionary):
 	# MissionState AutoLoad にミッションデータを格納する
 	#    MissionState.gd に 'mission_network_data' 変数が宣言されている前提です。
 	if is_instance_valid(MissionState):
-		# Pscanコマンドは MissionState.mission_network_data.get("scan_data", {}) 
-		# を参照するため、全体の data を代入する必要があります。
-		MissionState.mission_network_data = data.get("network", {}) 
-		print("DEBUG: Mission network data loaded into MissionState.mission_network_data.")
+		# 💡 修正: MissionState.gd の initialize_mission_data を呼び出し、
+		# VFSのクリアとpcapファイルの生成を含むすべての初期化を実行させる
+		if MissionState.has_method("initialize_mission_data"):
+			MissionState.initialize_mission_data(mission_data) 
+			print("DEBUG: MissionState initialized with full mission data (Network, Flag, and VFS setup).")
+		else:
+			printerr("FATAL ERROR: MissionState.gd is missing 'initialize_mission_data' function.")
 	else:
 		printerr("FATAL ERROR: MissionState AutoLoad is not available.")
+
 		
 	print("Exec initialize_mission." + " / mission-id:" + str(current_mission_id) )
 	setup_ui()
@@ -98,6 +106,13 @@ func setup_ui():
 		if exit_button.pressed.is_connected(Callable(self, "_on_exit_button_pressed")):
 			exit_button.pressed.disconnect(Callable(self, "_on_exit_button_pressed"))
 		exit_button.pressed.connect(_on_exit_button_pressed)
+
+	# 事象提出ボタンの接続を追加 (ここが抜けていました)
+	if is_instance_valid(submit_solution_button):
+		# 既存の接続を切断してから新しい接続を追加 (再初期化時のエラー防止)
+		if submit_solution_button.pressed.is_connected(Callable(self, "_on_submit_solution_button_pressed")):
+			submit_solution_button.pressed.disconnect(Callable(self, "_on_submit_solution_button_pressed"))
+		submit_solution_button.pressed.connect(_on_submit_solution_button_pressed)
 
 
 # ツール起動ドックにボタンを動的に配置
@@ -178,8 +193,13 @@ func _set_file_explorer_initial_path(mdi_window: Window):
 	if is_instance_valid(tool_instance) and tool_instance.get_script() != null and "current_path" in tool_instance:
 		tool_instance.current_path = initial_path
 		mdi_window.title = "File Explorer: " + initial_path
+
+	# 💡 追記: VFSの状態が更新された後、明示的にファイルエクスプローラーの表示を更新する
+		#    file_explorer_ui.gd に _update_display() 関数が存在することを前提とします。
+	if tool_instance.has_method("_update_display"):
+		tool_instance._update_display() # ← この行を追記
 	else:
-		printerr("File Explorer instance not ready or 'current_path' not found.")
+		printerr("File Explorer instance not initialized correctly or missing 'current_path'.")
 
 # 終了ボタンが押されたときの処理
 func _on_exit_button_pressed():
@@ -193,3 +213,48 @@ func _on_exit_button_pressed():
 		root_scene.start_mission_select_mode()
 	else:
 		printerr("ERROR: Cannot transition back. Check RootScene for 'start_mission_select_mode'.")
+
+func _on_submit_solution_button_pressed():
+	# クリック時にこれがコンソールに出力されるか確認してください
+	print("DEBUG: '事象提出' button pressed. Launching SolutionSubmissionUI.")
+	
+	_launch_mdi_tool_with_content(
+		"事象提出 (ミッション報告)", 
+		SOLUTION_SUBMISSION_SCENE, 
+		_setup_solution_submission_ui
+	)
+
+
+# SolutionSubmissionUI の初期設定を行うヘルパー関数
+func _setup_solution_submission_ui(mdi_window: Window):
+	# 1. ContentContainerの最初の子ノード (SolutionSubmissionUI) を取得
+	var tool_instance = mdi_window.get_node("ContentContainer").get_child(0)
+
+	# 2. SolutionSubmissionUIに親Windowの参照を設定
+	if is_instance_valid(tool_instance) and tool_instance.has_method("set_parent_window"):
+		tool_instance.set_parent_window(mdi_window)
+
+# 💡 _launch_mdi_tool 関数を汎用化し、初期化コールバックを受け取れるように修正 (推奨)
+#    (既存の _launch_mdi_tool を以下のように置き換えます)
+func _launch_mdi_tool_with_content(window_title: String, tool_scene: PackedScene, setup_callback: Callable = Callable()):
+	var mdi_window = TOOL_WINDOW_SCENE.instantiate()
+	
+	if mdi_window.has_method("initialize"):
+		mdi_window.initialize(window_title, tool_scene) 
+		
+		get_tree().get_root().add_child(mdi_window)
+		mdi_window.position = Vector2(randf_range(50, 200), randf_range(50, 200))
+		
+		# コールバックが提供されていれば実行
+		if setup_callback.is_valid():
+			# 次のフレームでUIの初期化を実行 (ノードが完全に準備されてから)
+			setup_callback.call_deferred(mdi_window)
+			
+		print("Launched MDI tool: ", window_title)
+
+# 💡 【新規関数】ヒントボードボタンが押されたときの処理
+func _on_hint_button_pressed(): # シグナル接続を想定
+	_launch_mdi_tool_with_content(
+		"ミッションボード (情報/メモ)", 
+		HINT_BOARD_SCENE
+	)

@@ -1,6 +1,6 @@
 {
   "mission_id": "FR-E-002",
-  "version": "1.0",
+  "version": "1.1",
   "title": "ターミナルとgrepによる不審ログの特定",
   "category": "Forensics",
   "difficulty": "Easy",
@@ -8,9 +8,7 @@
 
   "setup": {
 	"target_server": "192.168.1.5",
-	"required_tool": [
-	  "Terminal"
-	],
+	"required_tool": ["Terminal", "FileExplorer"],
 	"initial_files": [
 	  {
 		"path": "/home/user/logs/auth.log",
@@ -24,40 +22,28 @@
 	"has_time_limit": false
   },
 
+  "clear_condition": {
+	"type": "flag_submission",
+	"solution_label": "ログイン失敗の総回数を数字で入力してください:",
+	"flag": "23", 
+	"case_sensitive": false
+  },
+
   "steps": [
 	{
 	  "step_id": 1,
-	  "hint": "まずは仮想ファイルシステム（VFS）内のログファイルがどこにあるかを確認しましょう。Terminalでファイル一覧を表示してください。",
-	  "action": "terminal_input",
-	  "required_command": "ls /home/user/logs"
+	  "hint": "Terminalでファイル一覧を表示し、ログファイルがどこにあるかを確認しましょう。`ls /home/user/logs`",
+	  "action": "terminal_input"
 	},
 	{
 	  "step_id": 2,
-	  "hint": "ターゲットのログファイル（auth.log）の中身を確認してください。失敗したログイン試行を示すキーワードは何でしょうか？",
-	  "action": "terminal_input",
-	  "required_command": "cat /home/user/logs/auth.log | grep Failed"
+	  "hint": "ターゲットのログファイル（auth.log）の中身を確認してください。失敗したログイン試行を示すキーワードは何でしょうか？`cat /home/user/logs/auth.log | grep Failed`",
+	  "action": "terminal_input"
 	},
 	{
 	  "step_id": 3,
-	  "hint": "『Failed』の文字列でフィルタリングできたら、その行数をカウントすることで総失敗回数がわかります。Linuxコマンドのパイプ（|）とカウントコマンド（wc -l）を組み合わせてみましょう。",
-	  "action": "terminal_input",
-	  "required_command": "grep Failed /home/user/logs/auth.log | wc -l"
-	},
-	{
-	  "step_id": 4,
-	  "hint": "特定された失敗回数をフラグとして提出してください。例：失敗回数が50回の場合、cf_flag{50}",
-	  "action": "flag_submission"
+	  "hint": "『Failed』の文字列でフィルタリングできたら、その行数をカウントすることで総失敗回数がわかります。`grep Failed /home/user/logs/auth.log | wc -l`",
+	  "action": "terminal_input"
 	}
-  ],
-
-  "clear_condition": {
-	"type": "flag_submission",
-	"flag": "cf_flag{127}",
-	"success_message": "クリア！ターミナルコマンド（grepとwc）を使用して、大量のログから重要なセキュリティイベントを効率的に抽出できました。これはフォレンジックの基本です。"
-  },
-
-  "solution_explanation": {
-	"principle": "セキュリティログの分析では、特定のキーワード（例: 'Failed', 'Error', 'denied'）を検索して、異常なパターンを特定することが一般的です。UNIX/Linux環境では、`grep`コマンドで特定のパターンにマッチする行を抽出し、`wc -l`コマンドでその行数を数える手法が最も効率的です。",
-	"defense": "ブルートフォースアタックを防ぐには、短時間に多数の認証失敗があったIPアドレスを自動的にブロックするシステム（Fail2Banなど）の導入や、強力なパスワードポリシーの適用、二要素認証（2FA）の使用が効果的です。"
-  }
+  ]
 }
