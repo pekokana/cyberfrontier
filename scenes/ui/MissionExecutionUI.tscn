@@ -29,9 +29,12 @@ size_flags_horizontal = 3
 [node name="TimerLabel" type="Label" parent="VBoxRoot/TopBar"]
 layout_mode = 2
 
+[node name="SubmitSolutionButton" type="Button" parent="VBoxRoot/TopBar"]
+layout_mode = 2
+text = "事象提出"
+
 [node name="ExitButton" type="Button" parent="VBoxRoot/TopBar"]
 layout_mode = 2
-size_flags_horizontal = 3
 text = "Back MissionSelect"
 
 [node name="WorkspaceRoot" type="HBoxContainer" parent="VBoxRoot"]

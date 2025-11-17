@@ -5,7 +5,7 @@ extends RefCounted # メモリ管理のためにRefCountedを使うのが一般�
 # enum定義を削除し、VFSConstantsを参照する
 #const NodeType = preload("VFSConstants.gd").NodeType # 新しい定数クラスのenumを参照
 # ファイルとディレクトリのタイプを定義する
-enum NodeType { DIR, FILE }
+enum NodeType { DIR, FILE, PCAP }
 
 # --- プロパティ ---
 

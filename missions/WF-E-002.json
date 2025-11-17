@@ -1,61 +1,41 @@
 {
 	"mission_id": "WF-E-002",
-	"version": "1.1",
+	"version": "1.2",
 	"title": "PortScanとネットワークマッピングによるサーバー探索",
 	"category": "Network",
 	"difficulty": "Easy",
-	"description": "初期アラートにより、ネットワーク内に「役割不明の不審なサーバー」が存在することが判明しました。PortScan機能とネットワークマッピングビューアを駆使し、ターゲットサーバーのIPアドレスと開放ポート（フラグ）を特定してください。",
+	"description": "初期アラートにより、ネットワーク内に「役割不明の不審なサーバー」が存在することが判明しました。PortScan機能とネットワークマッピングビューアを駆使し、ターゲットサーバー（**192.168.1.100**）の**開放ポート**を特定してください。",
 
-	"network": {
-		"target_ip": "192.168.1.100",
-		
-		"scan_data": {
-		
-			"192.168.1.1": {
-				"name": "User Console",
-				"map_pos": [50, 400],
-				"ports": {}
+	"setup": {
+		"target_server": "192.168.1.100",
+		"required_tool": ["Terminal", "PortScanner", "NetworkMap"],
+		"network_config": {
+			"ip_address": "192.168.1.1",
+			"gateway": "192.168.1.10",
+			"scan_data": {
+				"192.168.1.1": { "name": "User Console", "map_pos": [50, 400], "ports": {} },
+				"192.168.1.10": { "name": "Internal Router", "map_pos": [300, 400], "ports": {} },
+				"192.168.1.50": { "name": "Mail Server", "map_pos": [550, 200], "ports": {"25": "SMTP", "110": "POP3"} },
+				"192.168.1.100": { "name": "Hidden Web Server", "map_pos": [550, 600], "ports": {"80": "HTTP"} }
 			},
-			
-			"192.168.1.10": {
-				"name": "Internal Router",
-				"map_pos": [300, 400],
-				"ports": {}
-			},
-			
-			"192.168.1.50": {
-				"name": "Mail Server",
-				"map_pos": [550, 200],
-				"ports": {
-					"25": "SMTP",
-					"110": "POP3"
-				}
-			},
-			
-			"192.168.1.100": {
-				"name": "Hidden Web Server",
-				"map_pos": [550, 600],
-				"ports": {
-					"80": "HTTP"
-				}
-			}
+			"connections": [
+				{ "from": "192.168.1.1", "to": "192.168.1.10" },
+				{ "from": "192.168.1.10", "to": "192.168.1.50" },
+				{ "from": "192.168.1.10", "to": "192.168.1.100" }
+			]
 		},
-		
-		"connections": [
-			{ "from": "192.168.1.1", "to": "192.168.1.10" },
-			{ "from": "192.168.1.10", "to": "192.168.1.50" },
-			{ "from": "192.168.1.10", "to": "192.168.1.100" }
-		]
+		"initial_files": []
 	},
-
-	"required_tool": [
-		"Terminal",
-		"PortScanner",
-		"NetworkMap"
-	],
 
 	"timing": {
 		"has_time_limit": false
+	},
+
+	"clear_condition": {
+		"type": "flag_submission",
+		"solution_label": "ターゲットサーバーの開放ポート番号（例: 20,443）を入力してください:",
+		"flag": "80", 
+		"case_sensitive": false
 	},
 
 	"steps": [
@@ -66,25 +46,8 @@
 		},
 		{
 			"step_id": 2,
-			"hint": "不審なサーバーのIPアドレス（192.168.1.100）が分かりました。Terminalに戻り、PortScan機能を使ってこのサーバーをスキャンし、開放ポートを特定しましょう。コマンドは**「pscan <IPアドレス>」**です。",
-			"action": "terminal_input",
-			"required_command": "pscan 192.168.1.100"
-		},
-		{
-			"step_id": 3,
-			"hint": "スキャンの結果、開放されているポート番号が判明したはずです。そのポート番号をフラグとして提出してください。例：ポートが80番ならcf_flag{80}",
-			"action": "flag_submission"
+			"hint": "不審なサーバーのIPアドレス（**192.168.1.100**）が分かりました。Terminalに戻り、**PortScanner**機能を使ってこのサーバーをスキャンしてください。",
+			"action": "tool_launch"
 		}
-	],
-
-	"clear_condition": {
-		"type": "flag_submission",
-		"flag": "cf_flag{80}",
-		"success_message": "クリア！最も重要な初期偵察フェーズを完了しました。ターゲットサーバーのIPアドレスと開放ポートを特定したことで、次の攻撃や防御策立案に必要な情報を得られました。"
-	},
-
-	"solution_explanation": {
-		"principle": "ポートスキャン（Port Scanning）は、標的のサーバーに対し、どのようなサービスが稼働しているかを確認するための基本的な偵察手法です。TCP/UDPの特定のポートに接続要求を行い、サーバーからの応答を分析することで、開放されているポート（サービスがリッスンしているポート）を特定します。",
-		"defense": "ネットワーク管理者としては、公開する必要のないポートは全てファイアウォールでブロックすることが基本です。また、外部からの不審なポートスキャン試行をIDS/IPSで検知し、攻撃元IPを即座に遮断するよう設定すべきです。"
-	}
+	]
 }

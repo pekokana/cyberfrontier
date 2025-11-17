@@ -1,22 +1,69 @@
 {
   "mission_id": "NF-E-001",
-  "version": "1.0",
+  "version": "1.1",
   "title": "FTP パケット解析による認証情報特定",
   "category": "Network / Forensics",
   "difficulty": "Easy",
-  "description": "キャプチャファイルからFTP通信を解析し、平文で流出した認証情報を特定せよ。",
+  "description": "キャプチャファイル (**evidence.pcap**) を解析し、平文で流出したFTP認証情報（ユーザー名:パスワードの形式）を特定せよ。特定した認証情報をフラグとして提出すること。",
   "timing": {
 	"has_time_limit": false
   },
   "setup": {
 	"target_server": "192.168.1.10",
-	"required_tool": ["Terminal", "PacketCapture"],
+	"required_tool": ["Terminal", "FileExplorer", "PacketCapture"],
 	"initial_files": [
-	  { "path": "/home/user/evidence.pcap", "type": "pcap" }
-	]
+	  {
+		"path": "/home/user/evidence.pcap",
+		"type": "pcap",
+		"description": "分析対象のパケットキャプチャファイル。FTP通信が含まれる。"
+	  }
+	],
+	"network_config": {
+	  "ip_address": "192.168.1.1",
+	  "gateway": "192.168.1.1",
+	  "scan_data": {
+		"192.168.1.10": {
+		  "name": "Target-FTP",
+		  "map_pos": [200, 100],
+		  "ports": {"21": "FTP", "80": "HTTP"}
+		},
+		"192.168.1.1": {
+		  "name": "Gateway",
+		  "map_pos": [50, 200],
+		  "ports": {"53": "DNS"}
+		}
+	  },
+	  "connections": [
+		{ "from": "192.168.1.1", "to": "192.168.1.10" }
+	  ]
+	}
   },
   "clear_condition": {
 	"type": "flag_submission",
-	"flag": "cf_flag{FTP_P4ssw0rd}"
-  }
+	"solution_label": "FTP認証情報 (user:password) を入力してください:",
+	"flag": "ftpuser:pcap_is_fun",
+	"case_sensitive": true 
+  },
+"hints": [
+	{
+	  "type": "objective",
+	  "content": "File Explorerで `/home/user/evidence.pcap` をダブルクリックして、Packet Captureツールを開く。",
+	  "level": "Easy"
+	},
+	{
+	  "type": "hint",
+	  "content": "PacketCaptureツールでフィルタ機能を使用し、FTPプロトコルに関連する通信（例：FTP、USER、PASSなど）を抽出してください。",
+	  "level": "Easy"
+	},
+	{
+	  "type": "hint",
+	  "content": "FTPの認証情報は平文で送られます。**USER**と**PASS**コマンドを探し、次の行にある応答（Reply）を確認すると良いでしょう。",
+	  "level": "Medium"
+	},
+	{
+	  "type": "note",
+	  "content": "ターゲットサーバー '192.168.1.10' は、標準のFTPポートである21番を使用しています。",
+	  "level": "All"
+	}
+  ]
 }

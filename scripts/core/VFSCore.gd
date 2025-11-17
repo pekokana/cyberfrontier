@@ -7,9 +7,9 @@ const ROOT_PATH = "/home/user"
 #
 ## ファイルシステム全体を保持するルートノード
 var root_node: VFSNode
-#
+
 ## --- 初期化とセットアップ ---
-#
+
 func _ready():
 	## アプリ起動時にVFSを初期化する
 	initialize_vfs()
@@ -29,7 +29,6 @@ func load_mission_setup(initial_files: Array):
 	print("VFS: Mission files loaded successfully.")
 
 # --- 内部ヘルパー関数 ---
-
 # パスを受け取り、指定されたノードを検索する
 func get_node_by_path(path: String) -> VFSNode:
 	var current_node = root_node
@@ -60,34 +59,36 @@ func _create_node_from_path(full_path: String, node_type_str: String, content: S
 	var node_name = full_path.get_file()
 	var parent_path = full_path.get_base_dir()
 	
-	# ROOT_PATH（/home/user）より上は作成しないようにチェック
-	if parent_path != ROOT_PATH and not parent_path.begins_with(ROOT_PATH):
-		print("VFS Warning: Path outside of " + ROOT_PATH + " ignored.")
-		return
-
-	# 1. 親ディレクトリが存在しない場合、作成を試みる
+	# ... (親ディレクトリの存在チェックと作成ロジックは省略) ...
 	var parent_node = get_node_by_path(parent_path)
+	
 	if not parent_node:
+		# 親ノードの作成ロジックは維持
 		if not create_dir(parent_path):
 			print("VFS Error: Failed to create parent directory: " + parent_path)
 			return
 		parent_node = get_node_by_path(parent_path) # 作成後に再取得
 	
-	# 2. 親ノードがディレクトリか確認
 	if parent_node.type != VFSNode.NodeType.DIR:
 		print("VFS Error: Parent node is not a directory: " + parent_path)
 		return
 		
 	# 3. ファイルノードを作成
-	var type_enum = VFSNode.NodeType.DIR if node_type_str == "dir" else VFSNode.NodeType.FILE
+	var type_enum: int
+	match node_type_str.to_lower(): # 💡 ここでタイプを正確にマッピングします
+		"dir":
+			type_enum = VFSNode.NodeType.DIR
+		"pcap":
+			type_enum = VFSNode.NodeType.PCAP
+		_: # "file" やその他の不明なタイプ
+			type_enum = VFSNode.NodeType.FILE
 	
 	var new_node = VFSNode.new(node_name, type_enum, full_path, content)
 	parent_node.children[node_name] = new_node
+	print("VFS: Created node: ", full_path, " Type: ", node_type_str)
 
 
-	
 # --- 外部API (コマンドロジック層が利用) ---
-
 # ファイルの内容を読み取る (cat, grepが利用)
 func read_file(path: String) -> String:
 	#return "Error: File or directory not found."
@@ -100,7 +101,7 @@ func read_file(path: String) -> String:
 		
 	# バイナリファイルなども想定されるが、ここではStringとして返す
 	return node.content
-#
+
 ## ディレクトリの内容を取得する (lsが利用)
 func get_directory_contents(path: String) -> Array:
 	#return ["Error: Directory not found."]
@@ -115,7 +116,7 @@ func get_directory_contents(path: String) -> Array:
 		# ls コマンド用に、ファイル名とタイプ（ディレクトリかファイルか）の情報を返す
 		contents.append({"name": name, "type": node.children[name].type})
 	return contents
-	
+
 # ノードが存在するかチェックする (cdなどが利用)
 func node_exists(path: String) -> bool:
 	return get_node_by_path(path) != null
@@ -181,7 +182,6 @@ func resolve_path(path: String, base_dir: String) -> String:
 	
 	return resolved_path.simplify_path()
 
-
 # ファイルの内容を保存する関数
 # 成功したら true、失敗したら false を返す
 func save_file_content(path: String, content: String) -> bool:
@@ -204,5 +204,24 @@ func save_file_content(path: String, content: String) -> bool:
 	node.content = content
 	
 	# 💡 ここで、VFSが永続化される場合は、永続化ロジック（例: JSONへの書き出し）を追加
-	
 	return true
+
+
+# 💡 追加: パスを指定してファイルの内容を更新する
+func update_file_content(path: String, new_content: String) -> bool:
+	var node = get_node_by_path(path)
+	
+	# 💡 ファイルタイプ（FILEまたはPCAP）であることを確認
+	if node and (node.type == VFSNode.NodeType.FILE or node.type == VFSNode.NodeType.PCAP):
+		node.content = new_content
+		print("VFS: Content updated for file: " + path)
+		return true
+	
+	printerr("VFS ERROR: Cannot update content. Path is not a file or does not exist or wrong type: " + path)
+	return false
+
+# VFSを完全にクリアし、ルートノードを再作成する
+func reset_vfs():
+	# initialize_vfs() は root_node = VFSNode.new(...) を実行し、VFSを初期状態に戻す想定
+	initialize_vfs()
+	print("VFS: Fully reset to initial state.")

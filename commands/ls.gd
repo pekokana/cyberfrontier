@@ -48,6 +48,8 @@ func execute(args: Array) -> String:
 			prefix = "D : "
 		elif type_value == VFSNode.NodeType.FILE:
 			prefix = "F : "
+		elif type_value == VFSNode.NodeType.PCAP:
+			prefix = "F : "
 		else:
 			prefix = "? : "
 			

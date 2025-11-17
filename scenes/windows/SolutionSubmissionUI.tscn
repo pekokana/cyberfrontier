@@ -1,0 +1,47 @@
+[gd_scene load_steps=2 format=3 uid="uid://bgtqjp5v54j1s"]
+
+[ext_resource type="Script" uid="uid://bros7qmxu5ro4" path="res://scripts/windows/SolutionSubmissionUI.gd" id="1_f8vy8"]
+
+[node name="SolutionSubmissionUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_f8vy8")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="LabelHeader" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "調査結果の提出"
+
+[node name="VBoxInput" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="LabelDescription" type="Label" parent="VBoxContainer/VBoxInput"]
+layout_mode = 2
+
+[node name="SolutionInputLineEdit" type="LineEdit" parent="VBoxContainer/VBoxInput"]
+layout_mode = 2
+placeholder_text = "調査結果を入力してください。"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer/VBoxInput"]
+layout_mode = 2
+
+[node name="SubmitButton" type="Button" parent="VBoxContainer/VBoxInput/HBoxContainer"]
+layout_mode = 2
+text = "事象を提出"
+
+[node name="MessageLabel" type="Label" parent="VBoxContainer/VBoxInput/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
