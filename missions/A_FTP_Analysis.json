@@ -39,31 +39,27 @@
 	}
   },
   "clear_condition": {
-	"type": "flag_submission",
+	"type": "solution_submission",
 	"solution_label": "FTP認証情報 (user:password) を入力してください:",
-	"flag": "ftpuser:pcap_is_fun",
+	"required_solution": "ftpuser:pcap_is_fun",
 	"case_sensitive": true 
   },
 "hints": [
 	{
 	  "type": "objective",
-	  "content": "File Explorerで `/home/user/evidence.pcap` をダブルクリックして、Packet Captureツールを開く。",
-	  "level": "Easy"
+	  "content": "File Explorerで `/home/user/evidence.pcap` をダブルクリックして、Packet Captureツールを開く。"
 	},
 	{
 	  "type": "hint",
-	  "content": "PacketCaptureツールでフィルタ機能を使用し、FTPプロトコルに関連する通信（例：FTP、USER、PASSなど）を抽出してください。",
-	  "level": "Easy"
+	  "content": "PacketCaptureツールでフィルタ機能を使用し、FTPプロトコルに関連する通信（例：FTP、USER、PASSなど）を抽出してください。"
 	},
 	{
 	  "type": "hint",
-	  "content": "FTPの認証情報は平文で送られます。**USER**と**PASS**コマンドを探し、次の行にある応答（Reply）を確認すると良いでしょう。",
-	  "level": "Medium"
+	  "content": "FTPの認証情報は平文で送られます。**USER**と**PASS**コマンドを探し、次の行にある応答（Reply）を確認すると良いでしょう。"
 	},
 	{
 	  "type": "note",
-	  "content": "ターゲットサーバー '192.168.1.10' は、標準のFTPポートである21番を使用しています。",
-	  "level": "All"
+	  "content": "ターゲットサーバー '192.168.1.10' は、標準のFTPポートである21番を使用しています。"
 	}
   ]
 }

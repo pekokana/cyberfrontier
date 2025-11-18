@@ -209,6 +209,21 @@ func submit_solution(submitted_solution: String) -> bool: # 💡 関数名を変
 		print("Mission Failure: Incorrect solution submitted.")
 		return false
 
-# 【新規関数】ヒントデータを取得するための関数
+# ヒントデータを取得するための関数
 func get_mission_hints() -> Array:
 	return mission_hints
+
+# スキャン結果を保存し、UIの更新を通知する
+func save_scan_result(ip_address: String, ports: Dictionary):
+	# 既存のポート情報があれば結合し、なければ新規作成
+	var existing_ports = scanned_results.get(ip_address, {})
+	
+	# 結合ロジック: 新しい結果で既存の結果を上書きする
+	for port in ports.keys():
+		existing_ports[port] = ports[port]
+		
+	scanned_results[ip_address] = existing_ports
+	
+	# スキャン結果が更新されたことを通知する
+	scan_results_updated.emit(ip_address)
+	print("DEBUG: Scan result saved and signal emitted for: ", ip_address)
