@@ -24,9 +24,26 @@ signal mission_completed(result_status: String)
 # MissionExecutionUI.gd から呼び出され、ミッション開始時に初期化する
 func initialize_mission_data(data: Dictionary):
 	# MissionExecutionUI から渡されたミッションデータからネットワーク情報を抽出
+	var setup = data.get("setup", {}) # setup オブジェクトを抽出
 
 	# 修正/追記: mission_network_data をJSONの'network_config'から設定する
 	mission_network_data = data.get("setup", {}).get("network_config", {}) 
+
+# network_config (既存のネットワークマップ用データ)
+	mission_network_data = setup.get("network_config", {}) 
+
+	# VFSの初期化 (VFSCoreは既にAutoLoadと仮定)
+	if is_instance_valid(VFSCore):
+		VFSCore.load_mission_setup(setup.get("initial_files", []))
+
+	# 💡 新規追加: 仮想ホストスタックの初期化
+	var virtual_hosts = setup.get("virtual_hosts", {})
+	if is_instance_valid(CF_NetworkService) and CF_NetworkService.has_method("load_virtual_hosts"):
+		# NetworkService に virtual_hosts 定義と VFSCore を渡す
+		CF_NetworkService.load_virtual_hosts(virtual_hosts, VFSCore) 
+		print("MissionState: Virtual Hosts/Network Stack initialized and services bound to NICs.")
+	else:
+		printerr("MissionState: NetworkService AutoLoad is missing or load_virtual_hosts method not found.")
 
 	# ミッションクリア条件と正解を設定
 	var clear_cond = data.get("clear_condition", {})

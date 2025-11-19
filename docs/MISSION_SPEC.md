@@ -32,8 +32,24 @@
 | `setup.initial_files` | Array of Object | 任意 | ユーザーの仮想ファイルシステム (VFS) に初期配置するファイル定義。 |
 | `setup.initial_files[].path` | String | 必須 | VFS内の配置パス (例: `/home/user/evidence.pcap`)。 |
 | `setup.initial_files[].type` | String | 必須 | ファイルの種類 (例: `pcap`, `binary`, `text`, `hosts`)。 |
+| `setup.virtual_hosts` | Object | 任意 |  仮想ホスト利用時必須。仮想ホストの定義。ホストIDをキーとする。|
 
-#### 2.1. ネットワーク定義 (`network_definition`)
+#### 2.1. 仮想ホスト定義（`virtual_hosts`）
+
+ミッションでサーバなど仮想ホストを利用される構成情報です。
+
+| JSONキー | 型 | 必須/任意 | 説明 |
+| :--- | :--- | :--- | :--- |
+| `host_id` | String | 必須 | 仮想ホストを識別する一意な値。 |
+| `ip_addresses` | Array of Object | 必須 | このホストに割り当てるすべての仮想IPアドレス。 |
+| `services` | Array of Object | 必須 | このホスト上で稼働する仮想サービスリスト。 |
+| `services[].type` | String | 必須 | サービスの種類 (ftp,web,sshなど)。 |
+| `services[].bind_ip` | String | 必須 | サービスが待ち受けるホスト上のIPアドレス。0.0.0.0 を指定した場合、全てのNICでリッスンします。ホストのip_addressesに存在するIPでなければなりません。 |
+| `services[].port` | Integer | 必須 | サービスが待ち受けるポート番号。 |
+| `services[].config` | Object | 必須 | サービスタイプ固有の設定。 |
+
+
+#### 2.2. ネットワーク定義 (`network_definition`)
 
 ネットワークマッピングビューアで利用される構成情報です。
 
@@ -45,7 +61,7 @@
 | `nodes[].role` | String | 必須 | ノードの役割 (例: `Target Web Server`)。 |
 | `network_definition.connections` | Array of Object | 必須 | ノード間の論理的な繋がりを定義。 |
 
-#### 2.2. データベース定義 (`database_definition`)
+#### 2.3. データベース定義 (`database_definition`)
 
 SQLインジェクションなど、DB関連ミッションの裏側を定義します。
 
