@@ -21,22 +21,71 @@ signal scan_results_updated(ip_address)
 # ミッションが完了したことを通知するシグナル
 signal mission_completed(result_status: String)
 
-# MissionExecutionUI.gd から呼び出され、ミッション開始時に初期化する
+
 func initialize_mission_data(data: Dictionary):
-	# MissionExecutionUI から渡されたミッションデータからネットワーク情報を抽出
 	var setup = data.get("setup", {}) # setup オブジェクトを抽出
+	
+	# =======================================================
+	# 💡 修正箇所：NetworkMap用のデータを virtual_hosts から生成
+	# =======================================================
+	
+	# ネットワーク設定を初期化 (MissionExecutionUIが期待する構造)
+	# JSONに network_config があればロードし、なければ空のDictionaryで開始
+	var network_config = setup.get("network_config", {}) 
+	
+	if not network_config.has("scan_data"):
+		network_config["scan_data"] = {}
+	if not network_config.has("connections"):
+		network_config["connections"] = []
 
-	# 修正/追記: mission_network_data をJSONの'network_config'から設定する
-	mission_network_data = data.get("setup", {}).get("network_config", {}) 
+	var virtual_hosts_data = setup.get("virtual_hosts", {})
+	
+	# virtual_hosts の情報から NetworkMapUI が描画できるデータ構造を生成
+	var y_pos = 100 # マップ上のY座標の開始位置
+	const X_SPACING = 250 # X方向の間隔を広げる
+	const Y_SPACING = 250 # Y方向の間隔を広げる
 
-# network_config (既存のネットワークマップ用データ)
-	mission_network_data = setup.get("network_config", {}) 
+	for host_id in virtual_hosts_data.keys():
+		var host_config = virtual_hosts_data[host_id]
+		var ips = host_config.get("ip_addresses", [])
+		var services_config = host_config.get("services", [])
+		
+		var x_pos = 100 # X座標の開始位置
+		
+		# ホスト内のIPごとにノードデータを作成
+		for i in range(ips.size()):
+			var ip = ips[i]
+			
+			# サービス情報の抽出
+			var node_ports = {}
+			for svc in services_config:
+				# 0.0.0.0 またはこのIPにバインドされているサービスをリスト
+				if svc.get("bind_ip") == "0.0.0.0" or svc.get("bind_ip") == ip:
+					# ポートを文字列キーとして格納
+					node_ports[str(svc.get("port"))] = svc.get("type").to_upper()
+					
+			# NetworkNodeが期待するデータ構造を生成
+			network_config["scan_data"][ip] = {
+				"name": host_id,
+				"map_pos": [x_pos, y_pos],
+				"ports": node_ports
+			}
+			x_pos += X_SPACING # ノードを横にずらす
+			
+		y_pos += Y_SPACING # 次のホストを縦にずらす
+
+	# 生成されたデータを MissionState に格納
+	mission_network_data = network_config
+	
+	# =======================================================
+	# VFSとNetworkServiceの初期化（既存コードを維持）
+	# =======================================================
 
 	# VFSの初期化 (VFSCoreは既にAutoLoadと仮定)
 	if is_instance_valid(VFSCore):
 		VFSCore.load_mission_setup(setup.get("initial_files", []))
 
-	# 💡 新規追加: 仮想ホストスタックの初期化
+	# 仮想ホストスタックの初期化
 	var virtual_hosts = setup.get("virtual_hosts", {})
 	if is_instance_valid(CF_NetworkService) and CF_NetworkService.has_method("load_virtual_hosts"):
 		# NetworkService に virtual_hosts 定義と VFSCore を渡す
@@ -45,21 +94,23 @@ func initialize_mission_data(data: Dictionary):
 	else:
 		printerr("MissionState: NetworkService AutoLoad is missing or load_virtual_hosts method not found.")
 
-	# ミッションクリア条件と正解を設定
-	var clear_cond = data.get("clear_condition", {})
-	mission_success_criteria = clear_cond
-
-	#JSONのキーに合わせて 'required_solution' を取得する
-	#'flag_submission'だけでなく'solution_submission'タイプも対応
-	if clear_cond.get("type") == "solution_submission":
-		required_solution = clear_cond.get("required_solution", "").strip_edges()
-	elif clear_cond.get("type") == "flag_submission":
-		required_solution = clear_cond.get("flag", "").strip_edges()
-	else:
-		required_solution = ""
-
-	# ヒントデータをJSONからロード
+	# =======================================================
+	# ヒントデータをロードし、ミッション目標を自動追加
+	# =======================================================
+	
+	# 1. JSONからヒントをロード
 	mission_hints = data.get("hints", [])
+	
+	# 2. ヒントが空の場合、ミッションの「description」を「objective」として追加する
+	if mission_hints.is_empty():
+		var mission_description = data.get("description", "").strip_edges()
+		if not mission_description.is_empty():
+			mission_hints.append({
+				"type": "objective",
+				"content": mission_description
+			})
+			print("MissionState: Added mission description as the initial objective hint.")
+		# else: ヒントも説明もない場合は空のまま
 
 	# 過去の結果をクリア
 	scanned_results.clear()
@@ -67,17 +118,16 @@ func initialize_mission_data(data: Dictionary):
 	# =======================================================
 	# VFSのクリアと初期ファイルのセットアップ
 	# =======================================================
-	
-	# 1. VFSをリセット (VFSCoreに reset_vfs() が実装されている必要があります)
-	#    VFSCoreが有効なインスタンスであるか、または存在しない場合に備える
+
+	# VFSのクリアと初期ファイルのセットアップ
 	if is_instance_valid(VFSCore) and VFSCore.has_method("reset_vfs"):
 		VFSCore.reset_vfs()
 		print("DEBUG: VFSCore reset completed.")
 	
-	# 2. 初期ファイルをVFSにセットアップ (pcapファイル生成を含む)
 	_setup_initial_files(data.get("setup", {}).get("initial_files", []), data)
 	
 	print("MissionState initialized with full mission data (Network, Flag, and VFS setup).")
+
 
 # スキャン結果を取得する
 func get_scanned_results_for(ip: String) -> Dictionary:

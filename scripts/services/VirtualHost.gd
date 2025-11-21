@@ -3,15 +3,20 @@ extends RefCounted
 class_name VirtualHost
 
 # 💡 NetworkServiceから参照できるように、サービス実装クラスを定義
-#const FTPServer = preload("res://scripts/services/FTPServer.gd")
+const FTPServer = preload("res://scripts/services/FTPServer.gd")
+const WebServer = preload("res://scripts/services/WebServer.gd")
+const DBServer = preload("res://scripts/services/DBServer.gd")
+
 const SERVER_CLASSES = {
-	"ftp": preload("res://scripts/services/FTPServer.gd"),
+	"ftp": FTPServer,
+	"web": WebServer,
+	"db": DBServer,
 	#"ftp": FTPServer,
 	# "web": WebServer, ... (他サービスもここに追加)
 }
 
 var host_id: String
-var ip_addresses: Array[String] = []
+@export var ip_addresses = []
 # Key: bind_ip_port_protocol (例: "10.0.0.10_21_ftp", "0.0.0.0_80_web"), Value: BaseServerインスタンス
 var services: Dictionary = {} 
 

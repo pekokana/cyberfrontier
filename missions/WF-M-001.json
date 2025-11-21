@@ -1,0 +1,56 @@
+{
+  "mission_id": "WF-M-001",
+  "version": "1.0",
+  "title": "SQLインジェクションによる機密情報抽出",
+  "category": "Web/SQL",
+  "difficulty": "Medium",
+  "description": "公開Webサーバーに脆弱性がある。このWebサーバーから内部DBサーバーに対し、SQLインジェクション攻撃を試み、隠されたフラグを取得せよ。",
+  "setup": {
+	"target_server": "192.168.1.100",
+	"required_tool": ["Terminal", "http_client"],
+	
+	"virtual_hosts": {
+	  "Web-App-DB": { 
+		"ip_addresses": ["192.168.1.100"],
+		"services": [
+		  {
+			"type": "web",
+			"port": 80,
+			"bind_ip": "0.0.0.0", 
+			"config": {
+			  "root_path": "/vfs/www_web_app",
+			  "files": [
+				{
+				  "name": "index.html",
+				  "content": "<h1>脆弱なWebサービス</h1><p>このサービスはユーザー検索機能を持っています。/?q=test を試してください。</p>"
+				}
+			  ]
+			}
+		  },
+		  {
+			"type": "db",
+			"port": 3306,
+			"bind_ip": "127.0.0.1", 
+			"config": {
+			  "initial_data_users": [
+				{"id": 1, "username": "webuser", "password_hash": "hashed123"}
+			  ]
+			}
+		  }
+		]
+	  }
+	}
+  },
+  "clear_condition": {
+	"type": "flag_submission",
+	"flag": "FLAG{SQL_INJECTION_WEAK}",
+	"description": "SQLインジェクションによりDBから抽出したフラグを提出すること。",
+	"case_sensitive": true
+  },
+  "hints": [
+	{
+	  "type": "hint",
+	  "content": "Webサービスの'/search'パスに脆弱な入力処理があるかもしれません。クエリパラメータをチェックしてください。"
+	}
+  ]
+}
