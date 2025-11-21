@@ -1,0 +1,66 @@
+{
+  "mission_id": "NF-M-005",
+  "version": "1.0",
+  "title": "IPバインドによるサービス分離の確認",
+  "category": "Network/Configuration",
+  "difficulty": "Medium",
+  "description": "ターゲットホスト (Server-Bound) は2つのIPを持つ。Webサーバーは全てのNICで稼働しているが、FTPサーバーは内部NIC (10.0.0.10) のみでバインドされている。外部IP (192.168.1.10) へのFTP接続が拒否されることを確認せよ。",
+  "timing": {
+	"has_time_limit": false
+  },
+  "setup": {
+	"target_server": "192.168.1.10",
+	"required_tool": ["Terminal", "ftp", "http_client", "PortScanner"],
+	
+	"virtual_hosts": {
+	  "Server-Bound": { 
+		"ip_addresses": ["192.168.1.10", "10.0.0.10"],
+		"services": [
+		  {
+			"type": "web",
+			"port": 80,
+			"bind_ip": "0.0.0.0", 
+			"config": {
+			  "root_path": "/vfs/www_webserver",
+			  "files": [
+				{
+				  "name": "index.html",
+				  "content": "Web service is open on all interfaces."
+				}
+			  ]
+			}
+		  },
+		  {
+			"type": "ftp",
+			"port": 21,
+			"bind_ip": "10.0.0.10",
+			"config": {
+			  "username": "ftp_internal",
+			  "password": "local_access",
+			  "root_path": "/vfs/ftp_internal",
+			  "files": [
+				{
+				  "name": "flag.txt",
+				  "content": "cf_flag{NIC_Binding_Verified}"
+				}
+			  ]
+			}
+		  }
+		]
+	  }
+	}
+  },
+  "clear_condition": {
+	"type": "terminal_command_success",
+	"command": "ftp 10.0.0.10",
+	"required_output_snippet": "220 Virtual FTP Server ready",
+	"description": "踏み台サーバーを利用するなどして、10.0.0.10へのFTP接続に成功すること。"
+  },
+  "hints": [
+	{
+	  "type": "objective",
+	  "content": "ユーザーの仮想PCのIPは 192.168.1.1 です。このIPから 192.168.1.10:21 へのFTP接続は可能か確認してください。",
+	  "level": "Easy"
+	}
+  ]
+}

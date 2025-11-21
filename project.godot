@@ -21,6 +21,7 @@ Global="*res://scripts/core/Global.gd"
 VFSCore="*res://scripts/core/VFSCore.gd"
 MissionManager="*res://scripts/managers/MissionManager.gd"
 MissionState="*res://scripts/managers/MissionState.gd"
+CF_NetworkService="*res://scripts/services/NetworkService.gd"
 
 [display]
 

@@ -16,6 +16,9 @@ var commands = {} # "help" → インスタンス
 # VFS対応：現在の作業ディレクトリを保持
 var current_path: String = "/home/user"
 
+# ターミナルプロンプトの接頭辞を保持
+var prompt_prefix: String = "user@cyb-pc:/$ "
+
 # デバッグ用変数：前回のフォーカスノードを保持
 var last_focused_node: Object = null
 
@@ -102,6 +105,9 @@ func _register_builtin_commands():
 	_register_command("cat", preload("res://commands/cat.gd").new())
 	_register_command("cd", preload("res://commands/cd.gd").new())
 	_register_command("pwd", preload("res://commands/pwd.gd").new())
+	
+	# serviceコマンドの追加
+	_register_command("ftp", preload("res://commands/ftp.gd").new())
 
 func _load_external_commands():
 	var dir = DirAccess.open("res://Console/commands/")
@@ -121,6 +127,27 @@ func _register_command(cmd_name: String, instance: Object):
 		instance.console = self
 
 func _on_command_entered(text: String):
+
+	# trimmed_text を定義
+	var trimmed_text = text.strip_edges()
+	
+	if trimmed_text == "":
+		# 空コマンドの場合もプロンプトを再表示
+		_update_prompt()
+		return
+
+	# 接続中のFTPセッションがある場合の処理
+	var ftp_session = commands.get("ftp")
+	if ftp_session and not ftp_session.current_session.is_empty():
+		# 接続中の場合は、入力全体をFTPセッションに渡す
+		var output = ftp_session._handle_session_input(trimmed_text)
+		
+		# _print_output -> _print に変更
+		_print(prompt_prefix + trimmed_text, OutputType.INPUT) # 入力を表示
+		_print(output, OutputType.SYSTEM)                    # 応答を表示
+		_update_prompt()
+		return
+
 	var command_line = text.strip_edges()
 	if command_line == "":
 		# 空コマンドの場合もプロンプトを再表示
@@ -129,17 +156,18 @@ func _on_command_entered(text: String):
 
 	# OutputType.SYSTEM を使用することで、_print が余計な "> " を付加するのを防ぎます
 	var prompt = _get_current_dir_name() + " > "
-	_print(prompt + command_line, OutputType.SYSTEM)
-
-
+	# trimmed_text を使用するように変更
+	_print(prompt + trimmed_text, OutputType.SYSTEM)
+	
 	command_history.append(command_line)
 	history_index = command_history.size()
 	input_line.clear()
 
-	var parts = text.split(" ", false)
+	var parts = trimmed_text.split(" ", false)
 	var cmd_name = parts[0]
 	var args = parts.slice(1, parts.size())
 
+	# 既存のコマンド処理
 	if commands.has(cmd_name):
 		var cmd = commands[cmd_name]
 		if cmd.has_method("execute_async"):
@@ -155,10 +183,10 @@ func _on_command_entered(text: String):
 	# コマンド実行後のプロンプト表示
 	_update_prompt()
 
-func _update_prompt():
-	var prompt = _get_current_dir_name() + " > "
-	# InputLineのプレースホルダーを更新
-	input_line.placeholder_text = prompt
+#func _update_prompt():
+	#var prompt = _get_current_dir_name() + " > "
+	## InputLineのプレースホルダーを更新
+	#input_line.placeholder_text = prompt
 
 func _print(message: String, type: OutputType = OutputType.SYSTEM):
 	var prefix = ""
@@ -281,7 +309,7 @@ func _scroll_output_to_end():
 		# これにより、TextEditのコンテンツサイズが確定した後にスクロール処理が実行されます。
 		call_deferred("_force_scrollbar_max")
 
-# 💡【修正】ScrollBarの値を最大にする二重遅延用の関数
+# ScrollBarの値を最大にする二重遅延用の関数
 func _force_scrollbar_max():
 	# ScrollContainerのScrollBarを操作
 	var max_scroll_value = scrollbar.get_max()
@@ -289,3 +317,24 @@ func _force_scrollbar_max():
 	# スクロールバーの値を最大値に設定し、最下部までスクロール
 	# これで、最後に表示されたテキストの行まで正確にスクロールされます。
 	scrollbar.set_value(max_scroll_value)
+
+# プロンプト接頭辞の設定/リセット関数
+func set_prompt_prefix(new_prefix: String):
+	prompt_prefix = new_prefix
+	_update_prompt()
+
+func reset_prompt_prefix():
+	prompt_prefix = "user@cyb-pc:/$ "
+	_update_prompt()
+
+func _update_prompt():
+	var dir_name = _get_current_dir_name()
+	
+	# 💡 ftp接続中は ftp.gd が設定した接頭辞を優先
+	var current_prompt = prompt_prefix 
+	if current_prompt == "user@cyb-pc:/$ ":
+		current_prompt = "user@cyb-pc:%s$ " % dir_name
+
+	#$VBoxContainer/InputLine/PromptLabel.text = current_prompt
+	# InputLineのプレースホルダーを更新
+	input_line.placeholder_text = current_prompt

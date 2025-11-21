@@ -150,7 +150,8 @@ func _clear_ui_and_windows():
 				and child.get_name() != "MissionManager" \
 				and child.get_name() != "VFSCore" \
 				and child.get_name() != "RootScene" \
-				and child.get_name() != "MissionState":
+				and child.get_name() != "MissionState"\
+				and child.get_name() != "CF_NetworkService":
 				
 				# Windowノード（MDIウィンドウ）か、その他の不要なグローバルノードを解放
 				print("FATAL DEBUG: [Cleanup] FORCIBLY FREEING ROOT NODE CHILD (MDI Window):", child.name, " (Type:", child.get_class(), ")")
