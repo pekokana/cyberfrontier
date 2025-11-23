@@ -23,5 +23,9 @@ func _init(node_name: String, node_type: int, full_path: String = "", file_conte
 	name = node_name
 	type = node_type
 	path = full_path
+	print_debug("  == VFS_TYPE : " + str(type))
 	if type == VFSNode.NodeType.FILE:
 		content = file_content
+		print_debug("VFSNode Info content : ", content)
+	else :
+		content = ""

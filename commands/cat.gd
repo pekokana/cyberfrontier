@@ -16,6 +16,8 @@ func execute(args: Array) -> String:
 	# VFSコアがエラーを文字列で返すと仮定
 	if content.begins_with("Error:"):
 		return "cat: " + args[0] + ": No such file or directory"
+
+	print_debug("CAT info content: ", content)
 		
 	return content
 

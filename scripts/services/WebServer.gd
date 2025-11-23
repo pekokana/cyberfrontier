@@ -1,5 +1,6 @@
 # res://scripts/services/WebServer.gd
-extends "res://scripts/services/BaseServer.gd"
+extends BaseServer
+class_name WebServer
 
 # NetworkService (Autoload) はプロジェクト内で利用可能である必要があります。
 

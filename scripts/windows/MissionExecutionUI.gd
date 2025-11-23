@@ -9,6 +9,7 @@ const ROOT_SCENE_PATH = "/root/RootScene"
 const TOOL_WINDOW_SCENE = preload("res://scenes/windows/mdi_window.tscn")
 const SOLUTION_SUBMISSION_SCENE = preload("res://scenes/windows/SolutionSubmissionUI.tscn") 
 const HINT_BOARD_SCENE = preload("res://scenes/windows/HintBoardUI.tscn")
+const HTTP_CLIENT_SCENE = preload("res://scenes/windows/HttpClientUI.tscn")
 
 # 起動可能なツールの一覧を定義
 # (キー:ボタンに表示する名前, 値:ツールの実体シーンパス)
@@ -18,6 +19,7 @@ const AVAILABLE_TOOLS = {
 	"FileExplorer": "res://scenes/windows/file_explorer_ui.tscn",
 	"NetworkMap": "res://scenes/windows/NetworkMapUI.tscn",
 	"PortScanner": "res://scenes/windows/PortScannerUI.tscn",
+	"HTTP Client": "res://scenes/windows/HttpClientUI.tscn",
 	#"PacketCapture": "res://scenes/windows/packet_capture_ui.tscn",
 	# 必要に応じてツールを追加
 }
@@ -73,14 +75,14 @@ func initialize_mission(id: String, data: Dictionary):
 	setup_ui()
 	populate_tool_launch_bar()
 	
-	# ミッション開始時のロジック（タイマー開始、仮想環境起動など）をここに追加
-	# _ready()の最後にツリー全体を出力
-	print("====================================")
-	print("★MissoinExecutionUI - Current Scene Tree Structure:")
-	print("====================================")
-	# シーンツリーのルートから処理を開始
-	Global.print_node_tree(get_tree().get_root())
-	print("====================================")
+	## ミッション開始時のロジック（タイマー開始、仮想環境起動など）をここに追加
+	## _ready()の最後にツリー全体を出力
+	#print("====================================")
+	#print("★MissoinExecutionUI - Current Scene Tree Structure:")
+	#print("====================================")
+	## シーンツリーのルートから処理を開始
+	#Global.print_node_tree(get_tree().get_root())
+	#print("====================================")
 
 # ==============================================================================
 # UIセットアップ

@@ -76,12 +76,12 @@ func _ready():
 	#mission_list_grid.set_column_expand(0, true) 
 
 	## 💡 _ready()の最後にツリー全体を出力
-	print("====================================")
-	print("★MissionSelectUI - Current Scene Tree Structure:")
-	print("====================================")
-	# シーンツリーのルートから処理を開始
-	Global.print_node_tree(get_tree().get_root())
-	print("====================================")
+	#print("====================================")
+	#print("★MissionSelectUI - Current Scene Tree Structure:")
+	#print("====================================")
+	## シーンツリーのルートから処理を開始
+	#Global.print_node_tree(get_tree().get_root())
+	#print("====================================")
 
 
 
