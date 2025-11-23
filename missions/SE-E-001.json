@@ -1,0 +1,32 @@
+{
+  "mission_id": "SE-E-001",
+  "version": "1.0",
+  "title": "最初のログイン情報",
+  "category": "System",
+  "difficulty": "Easy",
+  "description": "初期設定ファイルの中に、システムに登録されている**ゲストユーザーのパスワード**が記載されている。ターミナルの`cat`コマンドを使用して、このパスワードを特定せよ。",
+  "timing": { "has_time_limit": false },
+  "setup": {
+	"target_server": "192.168.1.100",
+	"required_tool": ["Terminal", "FileExplorer"],
+	"initial_files": [
+	  {
+		"path": "/etc/passwd",
+		"type": "text",
+		"content": "root:x:0:0:root:/root:/bin/bash\nguest:FLAG{Guest_P@ss_135}:1000:1000:Guest User:/home/guest:/bin/bash\nuser:x:1001:1001:Player:/home/user:/bin/bash"
+	  },
+	  { "path": "/etc/shadow", 
+		"type": "text", 
+		"content": "root:!:...\nguest:*:...\nuser:$6$saltsalt$hashedpassword:..." }
+	],
+	"network_config": {}
+  },
+  "clear_condition": {
+	"type": "solution_submission",
+	"required_solution": "FLAG{Guest_P@ss_135}",
+	"case_sensitive": true
+  },
+  "hints": [
+	{ "type": "hint", "content": "Linuxシステムでは、ユーザー情報は通常`/etc/passwd`に、パスワードのハッシュは`/etc/shadow`に保存されますが、この仮想環境ではセキュリティホールとして`/etc/passwd`に平文のフラグが記載されています。" }
+  ]
+}

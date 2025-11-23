@@ -26,7 +26,7 @@ func initialize_mission_data(data: Dictionary):
 	var setup = data.get("setup", {}) # setup オブジェクトを抽出
 	
 	# =======================================================
-	# 💡 修正箇所：NetworkMap用のデータを virtual_hosts から生成
+	# NetworkMap用のデータを virtual_hosts から生成
 	# =======================================================
 	
 	# ネットワーク設定を初期化 (MissionExecutionUIが期待する構造)
@@ -81,8 +81,14 @@ func initialize_mission_data(data: Dictionary):
 	# VFSとNetworkServiceの初期化（既存コードを維持）
 	# =======================================================
 
-	# VFSの初期化 (VFSCoreは既にAutoLoadと仮定)
+	# VFSのクリアと初期ファイルのセットアップを最初に実行
+	if is_instance_valid(VFSCore) and VFSCore.has_method("reset_vfs"):
+		VFSCore.reset_vfs()
+		print("DEBUG: VFSCOre reset completed.")
+
+	# VFSの初期か
 	if is_instance_valid(VFSCore):
+		print_debug("VFSCore Info initial_files : ", setup.get("initial_files", []))
 		VFSCore.load_mission_setup(setup.get("initial_files", []))
 
 	# 仮想ホストスタックの初期化
@@ -118,12 +124,6 @@ func initialize_mission_data(data: Dictionary):
 	# =======================================================
 	# VFSのクリアと初期ファイルのセットアップ
 	# =======================================================
-
-	# VFSのクリアと初期ファイルのセットアップ
-	if is_instance_valid(VFSCore) and VFSCore.has_method("reset_vfs"):
-		VFSCore.reset_vfs()
-		print("DEBUG: VFSCore reset completed.")
-	
 	_setup_initial_files(data.get("setup", {}).get("initial_files", []), data)
 	
 	print("MissionState initialized with full mission data (Network, Flag, and VFS setup).")
@@ -213,9 +213,6 @@ func _generate_pcap_content(required_flag: String, target_ip: String) -> String:
 # 初期ファイルリストを処理し、VFSにデータをセットアップする関数
 func _setup_initial_files(initial_files: Array, mission_data: Dictionary):
 	var target_ip = mission_data.get("setup", {}).get("target_server", "")
-	#var required_flag = mission_data.get("clear_condition", {}).get("flag", "")
-
-	# required_flagではなく、インスタンス変数 required_solution を使用する
 	var solution_data = required_solution
 
 	if not is_instance_valid(VFSCore):
@@ -225,6 +222,7 @@ func _setup_initial_files(initial_files: Array, mission_data: Dictionary):
 	for file_info in initial_files:
 		var file_path = file_info.get("path", "")
 		var file_type = file_info.get("type", "") # 例: "pcap", "dir", "file"
+		var file_content = file_info.get("content", "")
 		
 		if file_type.is_empty() or file_path.is_empty():
 			continue
@@ -232,27 +230,30 @@ func _setup_initial_files(initial_files: Array, mission_data: Dictionary):
 		# =======================================================
 		# 1. VFSノードをまず作成する！ (内容が空でも先にノードを作成)
 		# =======================================================
-		# VFSCore._create_node_from_path には文字列のタイプ (file_type) を渡す
-		VFSCore._create_node_from_path(file_path, file_type, "") 
+		#VFSCore._create_node_from_path(file_path, file_type, "") 
 
 		# =======================================================
 		# 2. pcapノードの場合、内容を生成し、VFSに上書き保存する
 		# =======================================================
+		var lower_type = file_type.to_lower()
+
 		if file_type.to_lower() == "pcap":
 			# pcapコンテンツを生成
 			# solution_data を認証情報として渡す
 			var pcap_content = _generate_pcap_content(solution_data, target_ip)			
 			# VFSCoreの公開関数を使ってファイル内容を更新
 			VFSCore.update_file_content(file_path, pcap_content)
+		else:
+			VFSCore._create_node_from_path(file_path, lower_type, file_content)
 
 # 外部（SolutionSubmissionUIなど）から提出された事象をチェックする
-func submit_solution(submitted_solution: String) -> bool: # 💡 関数名を変更
+func submit_solution(submitted_solution: String) -> bool: # 
 	if mission_success_criteria.get("type") != "solution_submission":
 		printerr("Error: Current mission is not a solution submission type.")
 		return false
 
 	var submitted = submitted_solution.strip_edges()
-	var correct = required_solution # 💡 変数名を変更
+	var correct = required_solution # 
 	
 	# 提出された事象が空の場合は不合格
 	if submitted.is_empty():

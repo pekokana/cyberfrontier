@@ -6,11 +6,13 @@ class_name VirtualHost
 const FTPServer = preload("res://scripts/services/FTPServer.gd")
 const WebServer = preload("res://scripts/services/WebServer.gd")
 const DBServer = preload("res://scripts/services/DBServer.gd")
+const APPServer = preload("res://scripts/services/AppServer.gd")
 
 const SERVER_CLASSES = {
 	"ftp": FTPServer,
 	"web": WebServer,
 	"db": DBServer,
+	"ap": APPServer,
 	#"ftp": FTPServer,
 	# "web": WebServer, ... (他サービスもここに追加)
 }
@@ -67,6 +69,13 @@ func handle_connection(source_ip: String, target_ip: String, protocol: String, t
 	if services.has(wildcard_key):
 		# サービスインスタンスに処理を委譲 (0.0.0.0バインドのサービスが応答)
 		return services[wildcard_key].handle_connection(source_ip, target_ip, data)
-	
-	# 3. どちらも見つからない
-	return "Connection refused: Host is blocking %s traffic on %s:%d (Service not bound to this interface)." % [protocol.to_upper(), target_ip, target_port]
+
+	# 3. サービスが見つからない場合
+	# HTTPエラー形式で応答を返す
+	if protocol == "web":
+		return {"status": 400, "headers": {"Content-Type": "text/plain"}, "body": "Web service not found on %s:%d" % [target_ip, target_port]}
+
+	return "503 Service Unavailable on %s:%d" % [target_ip, target_port]
+
+	## 3. どちらも見つからない
+	#return "Connection refused: Host is blocking %s traffic on %s:%d (Service not bound to this interface)." % [protocol.to_upper(), target_ip, target_port]

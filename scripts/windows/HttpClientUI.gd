@@ -1,3 +1,4 @@
+# res://scripts/tools/HttpClientUI.gd
 extends Control
 
 # NetworkService (Autoload) が通信のルーティングを担うと仮定
@@ -91,11 +92,18 @@ func _parse_url(url: String) -> Dictionary:
 	var ip_port_path = sanitized_url.split("/", 2)
 	
 	var ip_port = ip_port_path[0]
-	var path = "/" + ip_port_path.get(1, "") # パスがない場合はルートにする
+	#var path = "/" + ip_port_path.get(1, "") # パスがない場合はルートにする
+	var path = "/"
+	if ip_port_path.get(1) != "":
+		path += ip_port_path.get(1)
+	
 	
 	var parts = ip_port.split(":", 2)
 	var ip = parts[0]
-	var port = parts.get(1, "80").to_int() # ポート指定がない場合はデフォルト80
+	var port = 80
+	if parts.get(1) != "":
+		port =  parts.get(1).to_int()
+	#var port = parts.get(1, "80").to_int() # ポート指定がない場合はデフォルト80
 	
 	# 簡易的なIP/Portチェック
 	if not ip.is_valid_ip_address() or port <= 0:
