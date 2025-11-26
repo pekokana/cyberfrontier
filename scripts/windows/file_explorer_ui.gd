@@ -1,27 +1,27 @@
-# file_explorer_ui.gd
 extends Control
 
 # VFSへの参照はAutoLoadから取得
+# VFSCoreはプロジェクト設定でAutoLoadとして登録されている前提
 var vfs_core = VFSCore
 var current_path: String = "/home/user"
 
 # FSNodeスクリプトをプリロード
-# VFSNode.gd がノードの型（DIR/FILE）のEnumを定義していると仮定します。
+# VFSNode.gd がノードの型（DIR/FILE/PCAP）のEnumを定義していると仮定します。
 const VFS_NODE_SCRIPT = preload("res://scripts/core/VFSNode.gd")
 
 @onready var path_label = $VBoxContainer/HBoxContainer/PathLabel
 @onready var vfs_tree = $VBoxContainer/VfsTree
 
-# MDIウィンドウを開くためのRootSceneへの参照（terminal_uiと同じ構造を仮定）
-@onready var root_scene = get_tree().get_root().get_child(0)
+# MDIウィンドウを開くためのRootSceneへの参照（TerminalUIと同じ構造を仮定）
+# MDIWindowをルートに追加するため、get_tree().get_root()で直接追加します
+# @onready var root_scene = get_tree().get_root().get_child(0) # 冗長なので削除
 
 const TEXT_EDITOR_SCENE = preload("res://scenes/windows/text_editor_ui.tscn")
 const MDI_WINDOW_SCENE = preload("res://scenes/windows/mdi_window.tscn")
-const PACKET_CAPTURE_SCENE = preload("res://scenes/windows/packet_capture_ui.tscn") 
+const PACKET_CAPTURE_SCENE = preload("res://scenes/windows/packet_capture_ui.tscn")
 const ICON_FOLDER = preload("res://assets/icons/nmap32.png")
 const ICON_FILE = preload("res://assets/icons/sidebar32.png")
 const ICON_PCAP = preload("res://assets/icons/pcap32.png")
-# 💡 PacketCaptureツールシーンをプリロード
 
 func _ready():
 	_update_display()
@@ -51,21 +51,27 @@ func _update_display():
 	
 	# 子ノードをTreeに追加
 	for child_name in node.children.keys():
+
+		# 【VFS内部パスのフィルタリング】
+		# ルートディレクトリ ("/") をリスト表示する際、WebサーバーのVFSマウントポイント
+		# である "vfs" ディレクトリをスキップする。
+		if current_path == "/" and child_name == "vfs":
+			continue
+
 		var child_node = node.children[child_name]
 		var item = vfs_tree.create_item(root_item)
 		
 		item.set_text(0, child_name)
-		# vfs_core.combine_paths の代わりに、文字列操作でパスを結合する
-		# VFSNodeのパス結合のロジックを再現します。
+		# パスの結合
 		var full_path = current_path
 		if not full_path.ends_with("/"):
 			full_path += "/"
 		full_path += child_name
 		
 		# set_metadataに結合後のパスを渡す
-		item.set_metadata(0, full_path.simplify_path()) 
+		item.set_metadata(0, full_path.simplify_path())
 		
-		# NodeTypeをVFSCoreではなく、VFS_NODE_SCRIPT経由で参照
+		# NodeTypeをVFS_NODE_SCRIPT経由で参照し、アイコンを設定
 		if child_node.type == VFS_NODE_SCRIPT.NodeType.DIR:
 			item.set_icon(0, ICON_FOLDER)
 		elif child_node.type == VFS_NODE_SCRIPT.NodeType.PCAP:
@@ -93,14 +99,12 @@ func _on_vfs_tree_item_activated():
 		current_path = full_path
 		_update_display()
 	elif node.type == VFS_NODE_SCRIPT.NodeType.FILE:
-	# ファイルの場合: 拡張子に基づいてツールを決定
-		var extension = full_path.get_extension().to_lower()
-		
-		# その他のファイルの場合: テキストエディタを開く
+	# ファイルの場合: テキストエディタを開く
+	# 拡張子チェックのロジックは削除し、FILEタイプはすべてエディタで開く
 		_open_file_in_editor(full_path, node.name, node.content)
 	elif node.type == VFS_NODE_SCRIPT.NodeType.PCAP:
-		# 💡 PCAPファイルの場合: 専用の PacketCaptureUI で開く
-		_open_pcap_in_viewer(node.path, node.name, node.content) # 新しいヘルパー関数を呼び出す
+		# PCAPファイルの場合: 専用の PacketCaptureUI で開く
+		_open_pcap_in_viewer(node.path, node.name, node.content)
 	else:
 		print("Warning: Unknown node type activated: ", node.type)
 
@@ -108,14 +112,14 @@ func _on_vfs_tree_item_activated():
 func _open_pcap_in_viewer(path: String, title: String, content: String):
 	# 1. MDIラッパーウィンドウをインスタンス化
 	var mdi_window = MDI_WINDOW_SCENE.instantiate()
-	var window_title = title # ファイル名 (例: evidence.pcap) をタイトルにする
+	var window_title = "[PCAP] " + title # ファイル名 (例: evidence.pcap) をタイトルにする
 	
 	# 2. MDIWindowの initialize 関数を呼び出し、PacketCaptureUIのPackedSceneを設定
 	if mdi_window.has_method("initialize"):
 		# PACKET_CAPTURE_SCENE (packet_capture_ui.tscn) を渡す
-		mdi_window.initialize(window_title, PACKET_CAPTURE_SCENE) 
+		mdi_window.initialize(window_title, PACKET_CAPTURE_SCENE)
 		
-		# 3. MDIウィンドウをシーンツリーに追加
+		# 3. MDIウィンドウをシーンツリーに追加 (トップレベルウィンドウとして機能)
 		get_tree().get_root().add_child(mdi_window)
 		
 		# 4. ContentContainerの子（PacketCaptureUIインスタンス）を取得し、内容を設定する
@@ -124,7 +128,7 @@ func _open_pcap_in_viewer(path: String, title: String, content: String):
 		if is_instance_valid(content_container) and content_container.get_child_count() > 0:
 			var capture_ui = content_container.get_child(0)
 			
-			# 💡 PacketCaptureUI.gd の load_pcap_data 関数を呼び出す
+			# PacketCaptureUI.gd の load_pcap_data 関数を呼び出す
 			if capture_ui.has_method("load_pcap_data"):
 				capture_ui.load_pcap_data(content)
 				print("Opened PCAP viewer for: ", path)
@@ -135,22 +139,7 @@ func _open_pcap_in_viewer(path: String, title: String, content: String):
 	
 	# 5. 初期位置を設定
 	mdi_window.position = Vector2(randf_range(50, 200), randf_range(50, 200))
-
-
-
-# PacketCaptureツールを開くヘルパー関数
-func _open_file_in_packet_capture(path: String, name: String, content: String):
-	# MDI_WINDOW_SCENE と root_scene が定義されていることを前提とする
-	var mdi = MDI_WINDOW_SCENE.instantiate()
-	root_scene.add_child(mdi)
-	
-	mdi.initialize("Packet Capture: " + name, PACKET_CAPTURE_SCENE)
-	mdi.size = Vector2(800, 600)
-	
-	var capture_ui = mdi.get_node("ContentContainer").get_child(0)
-	if capture_ui.has_method("load_pcap_data"):
-		capture_ui.load_pcap_data(content)
-
+	mdi_window.size = Vector2(800, 600)
 
 # エディタウィンドウを開くヘルパー関数
 func _open_file_in_editor(path: String, title: String, content: String):
@@ -160,16 +149,12 @@ func _open_file_in_editor(path: String, title: String, content: String):
 	# 2. MDIWindowの initialize 関数を呼び出し、タイトルとTextEditorのPackedSceneを設定
 	if mdi_window.has_method("initialize"):
 		# initialize にPackedScene（TextEditorUI.tscn）を渡す
-		mdi_window.initialize(title, TEXT_EDITOR_SCENE) 
+		mdi_window.initialize(title, TEXT_EDITOR_SCENE)
 		
-		# 3. MDIウィンドウをシーンツリーのルートに追加 (MissionExecutionUIの起動ロジックに合わせる)
-		# Windowノードは親のCanvasではなく、ルートに追加することでトップレベルウィンドウとして機能します
+		# 3. MDIウィンドウをシーンツリーのルートに追加
 		get_tree().get_root().add_child(mdi_window)
 		
 		# 4. ContentContainerの子（TextEditorUIインスタンス）を取得し、内容を設定する
-		# mdi_window.initialize()内でインスタンス化が完了しているため、すぐにアクセス可能です。
-		
-		# ContentContainerノードへのパスを直接指定
 		var content_container = mdi_window.get_node("ContentContainer")
 		
 		if is_instance_valid(content_container) and content_container.get_child_count() > 0:

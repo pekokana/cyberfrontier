@@ -1,0 +1,64 @@
+{
+  "mission_id": "WF-M-004",
+  "version": "1.0",
+  "title": "Webサイトの隠しファイルの内容",
+  "category": "Web",
+  "difficulty": "Medium",
+  "description": "Webサーバーの`robots.txt`に、クローラーに対して非公開とされている隠しファイル名が記載されています。これを`http_client`で取得し、ファイルの中にある**フラグ文字列**を抽出して提出せよ。",
+  "timing": { "has_time_limit": false },
+  "setup": {
+	"target_server": "192.168.1.10",
+	"required_tool": ["Terminal", "http_client"],
+	"initial_files": [],
+	"virtual_hosts": {
+	  "Web-Target": {
+		"ip_addresses": ["192.168.1.10"],
+		"services": [
+		  {
+			"type": "web",
+			"port": 80,
+			"bind_ip": "0.0.0.0",
+			"config": {
+			  "root_path": "/vfs/service_data/web_target_80",
+			  "files": [
+				{ 
+				  "name": "robots.txt", 
+				  "content": "User-agent: *\nDisallow: /admin\nDisallow: /private_key.txt\n" 
+				},
+				{ 
+				  "name": "index.html", 
+				  "content": "<h1>Welcome to CyberFrontier Web</h1><p>We take measures to prevent external crawlers from accessing private areas. Please consult the standard crawler configuration file for details.</p>" 
+				},
+				{ 
+				  "name": "private_key.txt", 
+				  "content": "This is not a real key. The flag is: FLAG{Hidden_File_Content_004}" 
+				}
+			  ]
+			}
+		  }
+		]
+	  }
+	},
+	"network_config": { "scan_data": { "192.168.1.10": { "name": "Web-Target", "ports": {"80": "HTTP"} } } }
+  },
+  "clear_condition": {
+	"type": "solution_submission",
+	"solution_label": "ファイルから抽出したFLAG{xxxxxx}のフォーマットを入力してください。",
+	"required_solution": "FLAG{Hidden_File_Content_004}",
+	"case_sensitive": true
+  },
+  "hints": [
+	  {
+		"type": "objective",
+		"content": "ターゲットサーバー (192.168.1.10) のWebサイトを調査し、隠されたファイルからフラグを抽出します。"
+	  },
+	  {
+		"type": "hint",
+		"content": "Webサイトの調査では、まず**標準的なクローラー設定ファイル**（robots.txt）を確認するのが定石です。http_clientでルートパスから探してみましょう。"
+	  },
+	  {
+		"type": "note",
+		"content": "ファイルの中身を直接表示するには、http_clientの**Response**タブを使用します。"
+	  }
+  ]
+}

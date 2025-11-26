@@ -23,6 +23,9 @@ func set_parent_window(window: Window):
 func _initialize_ui():
 	var clear_cond = MissionState.mission_success_criteria
 	var label_text = clear_cond.get("solution_label", "事象（調査結果）を入力してください:")
+	printerr("DEBUG solution_success_criteria : ", MissionState.mission_success_criteria)
+	print_debug('DEBUG soltion_label : ', label_text)
+	print_debug('DEBUG soltion_label2 : ', clear_cond.get("solution_label", "hogehoge"))
 	label_description.text = label_text
 	message_label.text = "" # 初期メッセージをクリア
 

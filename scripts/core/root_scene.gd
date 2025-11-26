@@ -2,7 +2,7 @@ extends Node2D
 
 @onready var mission_manager = get_node("/root/MissionManager")
 
-# 💡 修正: シーンのpreloadは全て 'const' で大文字表記に統一します
+# 修正: シーンのpreloadは全て 'const' で大文字表記に統一します
 const MDI_WINDOW_SCENE = preload("res://scenes/windows/mdi_window.tscn")
 const TERMINAL_SCENE = preload("res://scenes/windows/terminal_ui.tscn")
 const NETWORKMAP_SCENE = preload("res://scenes/windows/NetworkMapUI.tscn")
@@ -63,7 +63,7 @@ func _vfstest():
 
 func _ready():
 	# 1.Sidebarインスタンスを作成し、UI_Layerの子として追加
-	var sidebar_ui = SIDEBAR_SCENE.instantiate() # 💡 修正: SIDEBAR_SCENEを使用
+	var sidebar_ui = SIDEBAR_SCENE.instantiate() # 修正: SIDEBAR_SCENEを使用
 	if is_instance_valid(ui_layer):
 		$UI_Layer.add_child(sidebar_ui)
 	else:
@@ -92,22 +92,22 @@ func _ready():
 # ヘルパーメソッド（UI切り替えの核とするロジック）
 # ----------
 func get_root_scene():
-	# 💡 確実にRootSceneを取得するためのヘルパー
+	# 確実にRootSceneを取得するためのヘルパー
 	return get_node("/root/RootScene")
 
-# 💡 追加: 既存のUIとウィンドウを全てクリーンアップする関数
+# 追加: 既存のUIとウィンドウを全てクリーンアップする関数
 func _clear_ui_and_windows():
 
 	# 1. 古い全画面UIを削除
 	if is_instance_valid(current_ui_instance):
-		print("DEBUG: [Cleanup] Clearing current_ui_instance:", current_ui_instance.name)
+		#print("DEBUG: [Cleanup] Clearing current_ui_instance:", current_ui_instance.name)
 		current_ui_instance.queue_free()
 		current_ui_instance = null
 		
 	# 2. 開いているMDIウィンドウを全て削除 (オープンウィンドウ辞書に基づく)
 	for id in open_windows.keys():
 		if is_instance_valid(open_windows[id]):
-			print("DEBUG: [Cleanup] Clearing open_windows dict entry:", id)
+			#print("DEBUG: [Cleanup] Clearing open_windows dict entry:", id)
 			open_windows[id].queue_free()
 	open_windows.clear()
 	
@@ -121,7 +121,7 @@ func _clear_ui_and_windows():
 		if is_instance_valid(sidebar_instance):
 			persistent_nodes.append(sidebar_instance)
 		
-		# 💡 get_children()の配列をコピーし、逆順に反復処理することで、
+		# get_children()の配列をコピーし、逆順に反復処理することで、
 		#    ノード解放によるツリー構造の変化を安全に扱う
 		var children_to_check = ui_layer.get_children().duplicate()
 
@@ -132,11 +132,11 @@ func _clear_ui_and_windows():
 				
 				# 永続ノードリストに含まれているかチェック
 				if not persistent_nodes.has(child):
-					# 💡 強制解放対象のノード名を出力
+					# 強制解放対象のノード名を出力
 					print("FATAL DEBUG: [Cleanup] FORCIBLY FREEING UNWANTED NODE:", child.name, " (Type:", child.get_class(), ")")
 					child.queue_free()
 
-	# 💡 4. 【追加の修正】RootSceneノード(self)直下のMDIウィンドウを強制解放
+	# 4. 【追加の修正】RootSceneノード(self)直下のMDIウィンドウを強制解放
 	# MDIウィンドウが RootScene (self) の直下に追加された場合の対策
 	var root_node = get_tree().get_root()
 	var root_children = root_node.get_children().duplicate()
@@ -157,14 +157,14 @@ func _clear_ui_and_windows():
 				print("FATAL DEBUG: [Cleanup] FORCIBLY FREEING ROOT NODE CHILD (MDI Window):", child.name, " (Type:", child.get_class(), ")")
 				child.queue_free()
 
-	# 💡 処理終了後、シーンツリー全体をログ出力（デバッグ用）
-	print("=========================================================")
-	print("Cleanup finished. Dumping current UI_Layer children:")
-	if is_instance_valid(ui_layer):
-		# UI_Layer の残っている子ノード名を出力して、MDIウィンドウが残っていないか確認
-		for child in ui_layer.get_children():
-			print("  - REMAINING:", child.name, " (Type:", child.get_class(), ")")
-	print("=========================================================")
+	# 処理終了後、シーンツリー全体をログ出力（デバッグ用）
+	#print("=========================================================")
+	#print("Cleanup finished. Dumping current UI_Layer children:")
+	#if is_instance_valid(ui_layer):
+		## UI_Layer の残っている子ノード名を出力して、MDIウィンドウが残っていないか確認
+		#for child in ui_layer.get_children():
+			#print("  - REMAINING:", child.name, " (Type:", child.get_class(), ")")
+	#print("=========================================================")
 
 	
 func _set_current_ui(new_ui: Control):
@@ -183,12 +183,12 @@ func _set_current_ui(new_ui: Control):
 	
 # ミッション選択画面へ移行(MainMenuUIから呼び出される）
 func navigate_to_mission_select():
-	# 💡 修正: _clear_ui_and_windowsを呼び出し、クリーンアップを任せる
+	# 修正: _clear_ui_and_windowsを呼び出し、クリーンアップを任せる
 	_clear_ui_and_windows()
 	
 	# UI_HolderにMissionSelectUIをロード
-	var mission_select_instance = MISSION_SELECT_SCENE.instantiate() # 💡 修正: 定数 MISSION_SELECT_SCENEを使用
-	_set_current_ui(mission_select_instance) # 💡 修正: タイポ mission_select_instalce を修正
+	var mission_select_instance = MISSION_SELECT_SCENE.instantiate() # 修正: 定数 MISSION_SELECT_SCENEを使用
+	_set_current_ui(mission_select_instance) # 修正: タイポ mission_select_instalce を修正
 	
 	if is_instance_valid(sidebar_toggle):
 		sidebar_toggle.visible = false
@@ -197,7 +197,7 @@ func navigate_to_mission_select():
 	if is_instance_valid(btn_back_mission_select):
 		btn_back_mission_select.visible = false
 
-# 💡 メインメニュー画面へ移行 (アプリ起動時や、MissionSelectUIの「戻る」ボタンから呼び出される)
+# メインメニュー画面へ移行 (アプリ起動時や、MissionSelectUIの「戻る」ボタンから呼び出される)
 func start_main_menu_mode():
 	# UIとMDIウィンドウを全てクリア
 	_clear_ui_and_windows()
@@ -222,7 +222,7 @@ func start_mission(mission_id: String):
 		return
 		
 	# 2. MissionManagerからミッションデータを取得
-	# 💡 MissionManager.gdに追加した get_mission_data 関数を使用
+	# MissionManager.gdに追加した get_mission_data 関数を使用
 	if not mission_manager.has_method("get_mission_data"):
 		printerr("ERROR: MissionManager is missing 'get_mission_data' method. Transition failed.")
 		return
@@ -261,14 +261,14 @@ func start_mission(mission_id: String):
 		printerr("Error: MissionExecutionUI is missing initialize_mission method.")
 
 
-# 💡 ウィンドウを開く汎用関数
+# ウィンドウを開く汎用関数
 #func open_window(window_id: String, content_scene: PackedScene, initial_position: Vector2 = Vector2(50, 50)):
 	#if open_windows.has(window_id) and is_instance_valid(open_windows[window_id]):
 		## すでに開いている場合は最前面に移動して終了
 		#open_windows[window_id].grab_focus()
 		#return
 	#
-	#var mdi_window = MDI_WINDOW_SCENE.instantiate() # 💡 修正: MDI_WINDOW_SCENEを使用
+	#var mdi_window = MDI_WINDOW_SCENE.instantiate() # 修正: MDI_WINDOW_SCENEを使用
 	##self.add_child(mdi_window) # RootSceneの子として追加
 	## UI_Layerの子供として追加する
 	#if is_instance_valid(ui_layer):
@@ -311,9 +311,9 @@ func open_window(window_type: String, window_title: String, mission_id: String) 
 		# 既に開いている場合は前面に移動
 		var existing_window = open_windows[window_title]
 		if is_instance_valid(existing_window):
-			existing_window.top_level = false # 💡 MDIWindowがWindowクラスの場合、CanvasLayerの子にするときはtop_level=falseが必要
+			existing_window.top_level = false # MDIWindowがWindowクラスの場合、CanvasLayerの子にするときはtop_level=falseが必要
 			existing_window.z_index = 100 
-			existing_window.top_level = true # 💡 再度top_level=trueにして最前面に移動
+			existing_window.top_level = true # 再度top_level=trueにして最前面に移動
 		return
 	
 	var content_scene: PackedScene
@@ -347,20 +347,10 @@ func open_window(window_type: String, window_title: String, mission_id: String) 
 	mdi_window.title = window_title
 	mdi_window.name = window_title  # 検索のためにタイトルを名前として使用
 	
-	# 💡 【重要な修正】Windowノードの追加方法
-	# WindowノードはデフォルトでViewPortの直下に追加されるため、
-	# scene tree のルートの子として `get_tree().get_root().add_child(mdi_window)`
-	# または `add_child(mdi_window)` のいずれかの方法で追加されているはずです。
-	# これを修正し、明示的にグローバルシーンツリーに追加します。
-	
-	# 修正の必要なし: Windowクラス（MDIWindow.tscn）のノードは、
-	# top_levelがtrueの場合、常にViewPort直下（つまりRootSceneの兄弟）に配置されます。
-	# MDIウィンドウの設計として、この動作は**正しい**ものです。
-
 	# 接続が外れているため、MDIウィンドウをシーンツリーに再追加する
 	get_tree().get_root().add_child(mdi_window) 
 	
-	# 💡 open_window関数内で add_child ではなく、
+	# open_window関数内で add_child ではなく、
 	# get_tree().get_root().add_child(mdi_window) 
 	# または単に add_child(mdi_window) が使用されている可能性があります。
 
@@ -375,7 +365,7 @@ func _on_window_closed(window_id):
 	# ウィンドウが閉じられたら管理リストから削除
 	open_windows.erase(window_id)
 
-# 💡 サイドバーの開閉処理は大きな変更なし
+# サイドバーの開閉処理は大きな変更なし
 func _on_sidebar_toggle_pressed() -> void:
 	if not is_instance_valid(sidebar_instance):
 		return
@@ -403,15 +393,15 @@ func _on_btn_back_mission_select_pressed() -> void:
 	navigate_to_mission_select()
 
 # -------------------------------------------------------------
-# 💡 実行画面から戻るための関数 (ExitButton用)
+# 実行画面から戻るための関数 (ExitButton用)
 # -------------------------------------------------------------
 func start_mission_select_mode():
 	## 1. 現在のUI (MissionExecutionUI) を解放
 	#if is_instance_valid(current_ui_scene):
 		#print("DEBUG: [RootScene] Attempting to free old UI:", current_ui_scene.name)
-		## 💡 current_ui_sceneを解放
+		## current_ui_sceneを解放
 		#current_ui_scene.queue_free() 
-		## 💡 解放後、参照をクリア
+		## 解放後、参照をクリア
 		#current_ui_scene = null
 	#else:
 		#print("DEBUG: [RootScene] No current_ui_scene to free.")
@@ -422,7 +412,7 @@ func start_mission_select_mode():
 		#return
 		#
 	#var select_ui = MISSION_SELECT_SCENE.instantiate()
-	## 💡 修正: RootSceneではなく、ui_holderの子として追加する
+	## 修正: RootSceneではなく、ui_holderの子として追加する
 	#ui_holder.add_child(select_ui) 
 	#current_ui_scene = select_ui
 	#

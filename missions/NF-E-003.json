@@ -1,0 +1,38 @@
+{
+  "mission_id": "NF-E-003",
+  "version": "1.0",
+  "title": "隠されたサービスの発見",
+  "category": "Network",
+  "difficulty": "Easy",
+  "description": "ターゲットサーバー(192.168.1.10)に対し、`PortScanner`を使用して標準的なポートではない、**隠されたサービスポート**（例：3000/tcp）を発見し、そのポート番号をフラグとして提出せよ。",
+  "timing": { "has_time_limit": false },
+  "setup": {
+	"target_server": "192.168.1.10",
+	"required_tool": ["PortScanner"],
+	"virtual_hosts": {
+	  "Target-Hidden": {
+		"ip_addresses": ["192.168.1.10"],
+		"services": [
+		  { "type": "web", "port": 80, "bind_ip": "0.0.0.0", "config": {} },
+		  { "type": "misc", "port": 3000, "bind_ip": "0.0.0.0", "config": {"service_name": "API_Beta"} }
+		]
+	  }
+	},
+	"network_config": {
+	  "client_ip": "192.168.1.100",
+	  "scan_data": {
+		"192.168.1.10": { "name": "Target-Server", "map_pos": [200, 100], "initial_status": "UNKNOWN", "ports": {} }
+	  },
+	  "connections": []
+	}
+  },
+  "clear_condition": {
+	"type": "solution_submission",
+	"solution_label": "FLAG{Port_一般的ではないポート番号} のフォーマットを入力してください。",
+	"required_solution": "FLAG{Port_3000}",
+	"case_sensitive": true
+  },
+  "hints": [
+	{ "type": "hint", "content": "PortScannerのカスタムスキャン機能を使用して、一般的ではない範囲のポートもチェックしましょう。例えば、1000〜5000の範囲など。" }
+  ]
+}

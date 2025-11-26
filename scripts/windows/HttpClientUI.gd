@@ -16,16 +16,26 @@ const CLIENT_IP = "192.168.1.1"
 
 func _ready():
 	send_button.pressed.connect(_on_send_button_pressed)
+
+	# response_outputの有効性チェック
+	if not is_instance_valid(response_output):
+		printerr("FATAL ERROR: 'response_output' node not found at path: $VBoxContainer/TabContainer/Response/TextEdit")
+		printerr("Please check HttpClientUI.tscn and ensure the 'Response' tab and its 'TextEdit' child exist.")
+		return # 致命的なエラーなので処理を中断
+	else:
+		#response_output.editable = false
+		response_output.text = "Ready to send request."
+
 	# 初期メソッドを設定
 	method_select.add_item("GET", 0)
 	method_select.add_item("POST", 1)
 	method_select.select(0)
 	
 	# 初期URLの提案 (WebサーバーのIPとポートを想定)
-	url_input.text = "http://192.168.1.10:80/"
+	#url_input.text = "http://192.168.1.10:80/"
 	
 	# 出力エリアを読み取り専用に
-	response_output.editable = false
+	#response_output.editable = false
 	
 	# POST選択時にのみBodyタブを有効化
 	method_select.item_selected.connect(_on_method_selected)
@@ -35,7 +45,7 @@ func _ready():
 func _on_method_selected(index: int):
 	var method = method_select.get_item_text(index)
 	# Bodyタブ（インデックス2）の無効化/有効化
-	$VBoxContainer/TabContainer.set_tab_disabled(2, method == "GET")
+	#$VBoxContainer/TabContainer.set_tab_disabled(2, method == "GET")
 
 # 送信ボタンが押された時のメインロジック
 func _on_send_button_pressed():
@@ -132,6 +142,14 @@ func _parse_headers(header_string: String) -> Dictionary:
 
 # サーバー応答を表示
 func _display_response(response: Variant):
+	# response_output ノードが有効かチェック
+	if not is_instance_valid(response_output):
+		printerr("ERROR: Response TextEdit node is invalid or not found. Check HttpClientUI.tscn node path.")
+		return
+
+	# レスポンス受信のデバッグログを追加
+	print("DEBUG: Received response from server: ", response)
+
 	var output = "\n--- Server Response ---\n"
 	
 	# WebServer.gd の応答が Dictionary 形式であることを想定
@@ -155,3 +173,8 @@ func _display_response(response: Variant):
 		output += "[UNKNOWN RESPONSE TYPE]\n" + str(response)
 
 	response_output.text += output
+
+	# 【重要】自動的に「Response」タブ（インデックス 2）に切り替える
+	var tab_container = $VBoxContainer/TabContainer
+	if tab_container:
+		tab_container.current_tab = 2

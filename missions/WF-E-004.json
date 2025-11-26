@@ -1,0 +1,43 @@
+{
+  "mission_id": "WF-E-004",
+  "version": "1.0",
+  "title": "Webサイトの隠しファイル",
+  "category": "Web",
+  "difficulty": "Easy",
+  "description": "Webサーバーの`robots.txt`に、クローラーに対して非公開とされている**隠しファイル名**が記載されています。これを`http_client`で取得し、ファイル名をフラグとして提出せよ。",
+  "timing": { "has_time_limit": false },
+  "setup": {
+	"target_server": "192.168.1.10",
+	"required_tool": ["Terminal", "http_client"],
+	"initial_files": [],
+	"virtual_hosts": {
+	  "Web-Target": {
+		"ip_addresses": ["192.168.1.10"],
+		"services": [
+		  {
+			"type": "web",
+			"port": 80,
+			"bind_ip": "0.0.0.0",
+			"config": {
+			  "root_path": "/vfs/www",
+			  "files": [
+				{ "name": "robots.txt", "content": "User-agent: *\nDisallow: /admin\nDisallow: /private_key.txt\n" },
+				{ "name": "index.html", "content": "<h1>Welcome</h1>" }
+			  ]
+			}
+		  }
+		]
+	  }
+	},
+	"network_config": { "scan_data": { "192.168.1.10": { "name": "Web-Target", "ports": {"80": "HTTP"} } } }
+  },
+  "clear_condition": {
+	"type": "solution_submission",
+	"solution_label": "見つけた隠しファイル名を入力してください。", 
+	"required_solution": "private_key.txt", 
+		"case_sensitive": true
+  },
+  "hints": [
+	{ "type": "hint", "content": "Webサイトのルートに配置される`robots.txt`は、クローラーに対する指示書ですが、隠しファイルの情報源にもなり得ます。" }
+  ]
+}

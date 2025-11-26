@@ -115,4 +115,3 @@ hintboard画面に表示します。
 | `clear_condition.solution_label` | String | 必須 | 事象報告画面に表示する回答を求める内容。|
 | `clear_condition.required_solution` | String | `type`が`solution_submission`なら必須 | ユーザーが発見・提出すべき**秘密の文字列（フラグ）** (例: `cf_flag{FTPS3cr3tP4ss}`)。 |
 | `clear_condition.case_sensitive`| Boolean | 必須 | `true`の場合回答文字列の大文字・小文字を判定する。 |
-

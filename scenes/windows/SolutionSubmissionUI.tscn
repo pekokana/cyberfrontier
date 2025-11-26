@@ -29,6 +29,7 @@ size_flags_vertical = 3
 
 [node name="LabelDescription" type="Label" parent="VBoxContainer/VBoxInput"]
 layout_mode = 2
+autowrap_mode = 3
 
 [node name="SolutionInputLineEdit" type="LineEdit" parent="VBoxContainer/VBoxInput"]
 layout_mode = 2
