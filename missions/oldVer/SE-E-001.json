@@ -12,19 +12,17 @@
 	"initial_files": [
 	  {
 		"path": "/etc/passwd",
-		"type": "file",
+		"type": "text",
 		"content": "root:x:0:0:root:/root:/bin/bash\nguest:FLAG{Guest_P@ss_135}:1000:1000:Guest User:/home/guest:/bin/bash\nuser:x:1001:1001:Player:/home/user:/bin/bash"
 	  },
 	  { "path": "/etc/shadow", 
-		"type": "file", 
-		"content": "root:!:...\nguest:*:...\nuser:$6$saltsalt$hashedpassword:..."
-		}
+		"type": "text", 
+		"content": "root:!:...\nguest:*:...\nuser:$6$saltsalt$hashedpassword:..." }
 	],
 	"network_config": {}
   },
   "clear_condition": {
 	"type": "solution_submission",
-	"solution_label": "FLAG{xxxxxxx}のフォーマットで入力してください",
 	"required_solution": "FLAG{Guest_P@ss_135}",
 	"case_sensitive": true
   },

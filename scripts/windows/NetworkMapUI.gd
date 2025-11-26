@@ -47,7 +47,7 @@ func _draw_map():
 		if scanned_ports.size() > 0:
 			var port_list = []
 			for port in scanned_ports.keys():
-				port_list.append(str(port))
+				port_list.append(str(int(port)))
 			node_text += "\nOpen Ports: " + ",".join(port_list)
 			
 			# スキャン済みフィードバック

@@ -84,11 +84,11 @@ func initialize_mission_data(data: Dictionary):
 	# VFSのクリアと初期ファイルのセットアップを最初に実行
 	if is_instance_valid(VFSCore) and VFSCore.has_method("reset_vfs"):
 		VFSCore.reset_vfs()
-		print("DEBUG: VFSCOre reset completed.")
+		#print("DEBUG: VFSCOre reset completed.")
 
 	# VFSの初期か
 	if is_instance_valid(VFSCore):
-		print_debug("VFSCore Info initial_files : ", setup.get("initial_files", []))
+		#print_debug("VFSCore Info initial_files : ", setup.get("initial_files", []))
 		VFSCore.load_mission_setup(setup.get("initial_files", []))
 
 	# 仮想ホストスタックの初期化
@@ -96,7 +96,7 @@ func initialize_mission_data(data: Dictionary):
 	if is_instance_valid(CF_NetworkService) and CF_NetworkService.has_method("load_virtual_hosts"):
 		# NetworkService に virtual_hosts 定義と VFSCore を渡す
 		CF_NetworkService.load_virtual_hosts(virtual_hosts, VFSCore) 
-		print("MissionState: Virtual Hosts/Network Stack initialized and services bound to NICs.")
+		#print("MissionState: Virtual Hosts/Network Stack initialized and services bound to NICs.")
 	else:
 		printerr("MissionState: NetworkService AutoLoad is missing or load_virtual_hosts method not found.")
 
@@ -115,18 +115,34 @@ func initialize_mission_data(data: Dictionary):
 				"type": "objective",
 				"content": mission_description
 			})
-			print("MissionState: Added mission description as the initial objective hint.")
+			#print("MissionState: Added mission description as the initial objective hint.")
 		# else: ヒントも説明もない場合は空のまま
 
-	# 過去の結果をクリア
-	scanned_results.clear()
+	# =======================================================
+	# 正解データをロードし、ミッションの報告画面設定
+	# =======================================================
+#
+	#mission_success_criteria = data.get("clear_condition", [])
+	## 過去の結果をクリア
+	#scanned_results.clear()
+
+
+	# ミッションクリア条件と正解を設定
+	var clear_cond = data.get("clear_condition", {})
+	mission_success_criteria = clear_cond
+	# JSONの 'required_solution' キーの値をメンバー変数に代入する行を追加
+	# -------------------------------------------------------------
+	required_solution = clear_cond.get("required_solution", "")
+	#print_debug("DEBUG: Required Solution Loaded: ", required_solution) # ログで確認用
+	# -------------------------------------------------------------
+
 
 	# =======================================================
 	# VFSのクリアと初期ファイルのセットアップ
 	# =======================================================
 	_setup_initial_files(data.get("setup", {}).get("initial_files", []), data)
 	
-	print("MissionState initialized with full mission data (Network, Flag, and VFS setup).")
+	#print("MissionState initialized with full mission data (Network, Flag, and VFS setup).")
 
 
 # スキャン結果を取得する

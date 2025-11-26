@@ -56,7 +56,7 @@ func _display_results(ip: String, ports: Dictionary):
 	for port_key in ports.keys():
 		var item = results_tree.create_item(root)
 		item.set_text(0, ip)
-		item.set_text(1, str(port_key))
+		item.set_text(1, str(int(port_key)))
 		item.set_text(2, ports[port_key])
 
 func _display_error(message: String):

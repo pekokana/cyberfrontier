@@ -24,9 +24,6 @@ layout_mode = 2
 
 [node name="MethodSelect" type="OptionButton" parent="VBoxContainer/HBoxRequest"]
 layout_mode = 2
-item_count = 1
-popup/item_0/text = "GET"
-popup/item_0/id = 0
 
 [node name="URLInput" type="LineEdit" parent="VBoxContainer/HBoxRequest"]
 layout_mode = 2
@@ -47,9 +44,12 @@ layout_mode = 2
 metadata/_tab_index = 0
 
 [node name="TextEdit" type="TextEdit" parent="VBoxContainer/TabContainer/Headers"]
-layout_mode = 0
-offset_right = 8.0
-offset_bottom = 8.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 placeholder_text = "Key: Value (e.g., Cookie: session=abc)"
 
 [node name="Body" type="Control" parent="VBoxContainer/TabContainer"]
@@ -58,9 +58,12 @@ layout_mode = 2
 metadata/_tab_index = 1
 
 [node name="TextEdit" type="TextEdit" parent="VBoxContainer/TabContainer/Body"]
-layout_mode = 0
-offset_right = 8.0
-offset_bottom = 8.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 placeholder_text = "Request Body Content (for POST)"
 
 [node name="Response" type="Control" parent="VBoxContainer/TabContainer"]
@@ -69,7 +72,11 @@ layout_mode = 2
 metadata/_tab_index = 2
 
 [node name="TextEdit" type="TextEdit" parent="VBoxContainer/TabContainer/Response"]
-layout_mode = 0
-offset_right = 8.0
-offset_bottom = 8.0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 placeholder_text = "Server Response will appear here.."
+editable = false

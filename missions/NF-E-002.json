@@ -1,0 +1,31 @@
+{
+  "mission_id": "NF-E-002",
+  "version": "1.0",
+  "title": "認証ログの解析",
+  "category": "Forensics",
+  "difficulty": "Easy",
+  "description": "サーバーの認証ログ(`/var/log/auth.log`)を分析し、唯一**ログインに成功しているIPアドレス**を特定せよ。",
+  "timing": { "has_time_limit": false },
+  "setup": {
+	"target_server": "192.168.1.100",
+	"required_tool": ["Terminal"],
+	"initial_files": [
+	  {
+		"path": "/var/log/auth.log",
+		"type": "file",
+		"content": "Oct 26 09:30:10 sshd[1234]: Failed password for user from 192.168.1.20\nOct 26 09:30:15 sshd[1235]: Accepted password for user from 192.168.1.5\nOct 26 09:30:20 sshd[1236]: Failed password for root from 192.168.1.25\nOct 26 09:30:25 sshd[1237]: Failed password for user from 192.168.1.20"
+	  }
+	],
+	"network_config": {}
+  },
+  "clear_condition": {
+	"type": "solution_submission",
+	"solution_label": "FLAG{IP_ログから確認されたIPアドレス}のフォーマットを入力してください。",
+	"required_solution": "FLAG{IP_192.168.1.5}",
+	"case_sensitive": true
+  },
+  "hints": [
+	{ "type": "objective", "content": "サーバーの認証ログ(`/var/log/auth.log`)を分析し、唯一**ログインに成功しているIPアドレス**を特定せよ。"},
+	{ "type": "hint", "content": "`cat`と`grep`コマンドを組み合わせて「Accepted password」の行を探すか、ログ全体を目視で確認しましょう。" },
+  ]
+}
