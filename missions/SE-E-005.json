@@ -1,0 +1,54 @@
+{
+  "mission_id": "SE-E-005",
+  "version": "1.0",
+  "title": "パスワードファイルのバックアップ",
+  "category": "System",
+  "difficulty": "Easy",
+  "description": "ホームディレクトリ（/home/user）内に、誤って配置された**パスワードファイルのバックアップ**が存在します。これを見つけ出し、ファイル内に記載されたフラグを取得して提出してください。",
+  "timing": {
+	"has_time_limit": false
+  },
+  "setup": {
+	"target_server": "192.168.1.100",
+	"required_tool": [
+	  "Terminal",
+	  "FileExplorer",
+	  "ls",
+	  "cat"
+	],
+	"initial_files": [
+	  {
+		"path": "/home/user/document.txt",
+		"type": "file",
+		"content": "普通の内容"
+	  },
+	  {
+		"path": "/home/user/passwords.bak",
+		"type": "file",
+		"content": "Secret Key: FLAG{B@ckup_K3y_987}\nDo NOT expose this file."
+	  },
+	  {
+		"path": "/home/user/tmp",
+		"type": "dir",
+		"content": ""
+	  }
+	],
+	"network_config": {}
+  },
+  "clear_condition": {
+	"type": "solution_submission",
+	"solution_label": "ファイルから見つけたフラグ文字列（FLAG{...}）を入力してください。",
+	"required_solution": "FLAG{B@ckup_K3y_987}",
+	"case_sensitive": true
+  },
+  "hints": [
+	{
+	  "type": "hint",
+	  "content": "まずはターゲットサーバーに接続し、カレントディレクトリを/home/userに変更し、`ls`コマンドでファイル一覧を確認してみましょう。"
+	},
+	{
+	  "type": "hint",
+	  "content": "不審なバックアップファイルを見つけたら、`cat`コマンドを使ってその中身を確認しましょう。"
+	}
+  ]
+}

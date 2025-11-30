@@ -42,12 +42,25 @@ func _update_display():
 		return
 
 	# 親ディレクトリへの戻る項目を追加
-	if current_path != "/":
+	#if current_path != "/":
+		#var parent_item = vfs_tree.create_item(root_item)
+		#parent_item.set_text(0, "..")
+		#parent_item.set_icon(0, ICON_FOLDER)
+		## カスタムメタデータにパスを格納
+		#parent_item.set_metadata(0, current_path.get_base_dir())
+
+# 親ディレクトリへの戻る項目を追加
+	var user_root_path = vfs_core.USER_DIR_PATH # /home/user を参照 
+
+	# 【修正箇所】現在のパスがユーザーのローカルルート (/home/user) ではない場合にのみ ".." を表示する
+	if current_path.simplify_path() != user_root_path.simplify_path():
 		var parent_item = vfs_tree.create_item(root_item)
 		parent_item.set_text(0, "..")
 		parent_item.set_icon(0, ICON_FOLDER)
 		# カスタムメタデータにパスを格納
-		parent_item.set_metadata(0, current_path.get_base_dir())
+		# simplify_path() は末尾のスラッシュなどを正規化するために使用
+		parent_item.set_metadata(0, current_path.get_base_dir().simplify_path())
+	
 	
 	# 子ノードをTreeに追加
 	for child_name in node.children.keys():
